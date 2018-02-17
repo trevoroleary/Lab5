@@ -319,8 +319,8 @@ public class LightLocalizer extends Thread  {
 	//travel to the destination 
 	public void travelTo(double x, double y){
 		
-		this.x = x;
-		this.y = y;
+		x = x * Lab5.TILE_SIZE;
+		y = y * Lab5.TILE_SIZE;
 		
 		//get current position
 		currentX = odometer.getX();

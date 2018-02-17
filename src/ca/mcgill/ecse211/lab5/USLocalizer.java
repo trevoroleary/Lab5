@@ -146,7 +146,7 @@ public class USLocalizer {
 		rightMotor.stop();
 
 		if (thetaA < thetaB) {
-			thetaRotation = (thetaA + thetaB) / 2.0 + 135;
+			thetaRotation = ((thetaA + thetaB) / 2.0) + 225 ;
 			navigation.turnTo(thetaRotation);
 		} else {
 			thetaRotation = (thetaA + thetaB) / 2.0 + 180;

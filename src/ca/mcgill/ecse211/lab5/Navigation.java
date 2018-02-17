@@ -1,10 +1,9 @@
 package ca.mcgill.ecse211.lab5;
 
-import ca.mcgill.ecse211.odometer.*;
-
-//import Odometer.Odometer;
-//import Odometer.OdometerExceptions;
+import ca.mcgill.ecse211.odometer.Odometer;
+import ca.mcgill.ecse211.odometer.OdometerExceptions;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.robotics.SampleProvider;
 
 /**
  * This class is used to Navigate through a series of way points
@@ -15,16 +14,12 @@ public class Navigation extends Thread {
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
 	private static final int MOTOR_STRAIGHT = 80;
-	private static final int MOTOR_ROTATE = 70;
 	public static final double WHEEL_RAD = 2.12;
 	public static final double TRACK = 16.05;
 	private boolean isNavigating;
 	private Odometer odometer;
 	public static int pointcounter;
 
-	// destination position
-	private double x;
-	private double y;
 
 	// angle toward destination
 	private double Theta;
@@ -37,8 +32,6 @@ public class Navigation extends Thread {
 	// difference between current position and destination position
 	private double dX; //
 	private double dY; //
-	private double dTheta;
-
 	// distance between current position and destination position
 	private double distance;
 
@@ -49,21 +42,26 @@ public class Navigation extends Thread {
 	 * @param rightMotor
 	 * 
 	 */
-	public Navigation(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor) {
+	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor) {
 
-		this.leftMotor = leftMotor;
+
+
+		this.odometer = odo;
 		this.rightMotor = rightMotor;
+		this.leftMotor = leftMotor;
+
 		try {
 			this.odometer = Odometer.getOdometer();
 		} catch (OdometerExceptions e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
 
 	/**
-	 * This method is used to calculate the distance to map point given Cartesian
-	 * coordinates x and y
+	 * This method is used to calculate the distance to map point given
+	 * Cartesian coordinates x and y
 	 * 
 	 * @param x
 	 * @param y
@@ -72,8 +70,8 @@ public class Navigation extends Thread {
 	public void travelTo(double x, double y) {
 		isNavigating = true;
 
-		this.x = x;
-		this.y = y;
+		x = x * Lab5.TILE_SIZE;
+		y = y * Lab5.TILE_SIZE;
 
 		// get current position
 		currentX = odometer.getX();
@@ -84,9 +82,11 @@ public class Navigation extends Thread {
 		dY = y - currentY;
 
 		distance = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
-		Theta = (Math.atan2(dX, dY)) * 180 / Math.PI; // convert from radius to degree
+		Theta = Math.toDegrees((Math.atan2(dX, dY))); // convert from radius to
+														// degree
 
 		// rotate toward destination
+
 		turnTo(Theta);
 
 		// move straight
@@ -103,38 +103,44 @@ public class Navigation extends Thread {
 	 * traveling to next waypoint
 	 * 
 	 */
-	public void turnTo(double Theta) {
-		currentTheta = odometer.getTheta(); // currentTheta is in degree
-		dTheta = Theta - currentTheta;
+	public void turnTo(double theta) {
+		boolean turnleft = false;
+		double currTheta = currentTheta;
+		double angle = 0;
 
-		// avoid maximal angle turn
-		if (dTheta > 180) {
-			dTheta = 360 - dTheta;
-		} else if (dTheta < -180) {
-			dTheta = 360 + dTheta;
+		angle = theta - currTheta;
+
+		if (angle < -180) {
+			angle = angle + 360;
 		}
-		// turn minTheta degree
-		leftMotor.setSpeed(MOTOR_ROTATE);
-		rightMotor.setSpeed(MOTOR_ROTATE);
-		leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, dTheta), true);
-		rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, dTheta), false);
+		if (angle > 180) {
+			angle = angle - 360;
+		}
+		if (angle < 0) {
+			turnleft = true;
+			angle = Math.abs(angle);
+		} else {
+			turnleft = false;
+		}
 
-	}
-	
-	public void turn(double Theta) {
-		currentTheta = odometer.getTheta(); // currentTheta is in degree
-		dTheta = Theta - currentTheta;
+		leftMotor.setSpeed(100);
+		rightMotor.setSpeed(100);
 
-		leftMotor.setSpeed(MOTOR_ROTATE);
-		rightMotor.setSpeed(MOTOR_ROTATE);
-		leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, Theta), true);
-		rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, Theta), true);
+		if (turnleft) {
+			leftMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, angle), true);
+			rightMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, angle), false);
+		} else {
+			leftMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, angle), true);
+			rightMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, angle), false);
+		}
+
+		currentTheta = theta;
 
 	}
 
 	/**
-	 * This method determines whether another thread has called travelTo and turnTo
-	 * methods or not
+	 * This method determines whether another thread has called travelTo and
+	 * turnTo methods or not
 	 * 
 	 * @return
 	 */
@@ -144,8 +150,8 @@ public class Navigation extends Thread {
 	}
 
 	/**
-	 * This method allows the conversion of a distance to the total rotation of each
-	 * wheel need to cover that distance.
+	 * This method allows the conversion of a distance to the total rotation of
+	 * each wheel need to cover that distance.
 	 * 
 	 * @param radius
 	 * @param distance
@@ -156,8 +162,8 @@ public class Navigation extends Thread {
 	}
 
 	/**
-	 * This method allows the conversion of an angle to the total rotation of each
-	 * wheel need to cover that distance.
+	 * This method allows the conversion of an angle to the total rotation of
+	 * each wheel need to cover that distance.
 	 * 
 	 * @param radius
 	 * @param distance
@@ -167,4 +173,6 @@ public class Navigation extends Thread {
 	public static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
+
+
 }

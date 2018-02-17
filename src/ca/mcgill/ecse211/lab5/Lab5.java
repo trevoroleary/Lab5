@@ -47,6 +47,7 @@ public class Lab5 {
 	static SensorModes ultrasonicSensor = new EV3UltrasonicSensor(usPort);
 	static SampleProvider usDistance = ultrasonicSensor.getMode("Distance");
 	static float[] usData = new float[usDistance.sampleSize()];
+	
 
 	/**
 	 * This is the main method
@@ -62,7 +63,7 @@ public class Lab5 {
 		Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
 
 		Display odometrydisplay = new Display(lcd); // No need to change
-		Navigation navigation = new Navigation(leftMotor, rightMotor);
+		Navigation navigation = new Navigation(odometer, leftMotor, rightMotor);
 
 		do {
 			// clear the display
@@ -111,14 +112,18 @@ public class Lab5 {
 		if (buttonChoice == Button.ID_UP)
 			startCorner = 0;
 		
+		
+		
 		Thread odoThread = new Thread(odometer);
 		odoThread.start();
-
+		
+		
 		Thread ododisplayThread = new Thread(odometrydisplay);
 		ododisplayThread.start();
 
 		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, isRisingEdge, usDistance, navigation);
 		LightLocalizer LightLocalizer = new LightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData, LData);
+		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor);
 
 		/*
 		// UltraSonic Localization
@@ -136,12 +141,18 @@ public class Lab5 {
 		
 		*/
 		
-		USLocalizer.localize(startCorner);
-		LightLocalizer.correctY();
-
-		LightLocalizer.travelTo(0, 0);
+//		USLocalizer.localize(startCorner);
+//		LightLocalizer.correctY();
+//		LightLocalizer.travelTo(0, 0);
+//		LightLocalizer.turnTo(0);
 		
-		LightLocalizer.turnTo(0);
+	
+		navigator.travelTo(0, 2);
+		navigator.travelTo(2, 2);
+		navigator.travelTo(2, 0);
+		navigator.travelTo(0, 0);
+		
+		
 		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 
