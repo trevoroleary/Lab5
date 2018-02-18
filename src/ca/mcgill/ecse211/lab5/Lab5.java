@@ -43,6 +43,7 @@ public class Lab5 {
 	public static final double WHEEL_RAD = 2.12;//2.12
 	public static final double TRACK = 10.2;//
 	public static final double TILE_SIZE = 30.48;
+	public static final int GRID_SIZE = 4;
 
 	static SensorModes ultrasonicSensor = new EV3UltrasonicSensor(usPort);
 	static SampleProvider usDistance = ultrasonicSensor.getMode("Distance");
@@ -117,7 +118,9 @@ public class Lab5 {
 		Thread odoThread = new Thread(odometer);
 		odoThread.start();
 		
-		
+		/**
+		 * display commented out (trying to fix overloading thred)
+		 */
 		Thread ododisplayThread = new Thread(odometrydisplay);
 		ododisplayThread.start();
 
@@ -141,17 +144,20 @@ public class Lab5 {
 		
 		*/
 		
-//		USLocalizer.localize(startCorner);
-//		LightLocalizer.correctY();
-//		LightLocalizer.travelTo(0, 0);
-//		LightLocalizer.turnTo(0);
+		USLocalizer.localize(startCorner);
+		LightLocalizer.correctXY(startCorner);
+		LightLocalizer.setXTOffset(startCorner);
+		//LightLocalizer.travelTo(0, 0);
+		//LightLocalizer.turnTo(0);
 		
+		
+		/*
 	
 		navigator.travelTo(0, 2);
 		navigator.travelTo(2, 2);
 		navigator.travelTo(2, 0);
 		navigator.travelTo(0, 0);
-		
+		*/
 		
 		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);

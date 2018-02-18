@@ -59,8 +59,8 @@ public class Display implements Runnable {
 
 			// Print x,y, and theta information
 			DecimalFormat numberFormat = new DecimalFormat("######0.00");
-			lcd.drawString("X: " + numberFormat.format(position[0]), 0, 0);
-			lcd.drawString("Y: " + numberFormat.format(position[1]), 0, 1);
+			lcd.drawString("X: " + numberFormat.format(position[0]/Lab5.TILE_SIZE), 0, 0);
+			lcd.drawString("Y: " + numberFormat.format(position[1]/Lab5.TILE_SIZE), 0, 1);
 			lcd.drawString("T: " + numberFormat.format(position[2]), 0, 2);
 
 			// this ensures that the data is updated only once every period

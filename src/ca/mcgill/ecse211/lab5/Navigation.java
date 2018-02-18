@@ -20,7 +20,6 @@ public class Navigation extends Thread {
 	private Odometer odometer;
 	public static int pointcounter;
 
-
 	// angle toward destination
 	private double Theta;
 
