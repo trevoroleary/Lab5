@@ -15,7 +15,7 @@ import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 import lejos.hardware.Sound;
 
-public class LightLocalizer extends Thread  {
+public class lightLocalizer extends Thread  {
 	
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
@@ -52,13 +52,11 @@ public class LightLocalizer extends Thread  {
 	//distance between current position and destination position
 	private double distance;
 	private boolean Navigating;
-	
-	
 
 			
 	//constructor
-	public LightLocalizer(Odometer odo,EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, SampleProvider RColor, SampleProvider LColor, float[] RData, float[] LData ) {
-				
+	public lightLocalizer(Odometer odo,EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, SampleProvider RColor, SampleProvider LColor, float[] RData, float[] LData ) {
+		
 		this.RColor = RColor;
 		this.RData = RData;
 		
@@ -195,6 +193,74 @@ public class LightLocalizer extends Thread  {
 	  }
 	  odometer.setTheta( nearestHeading( odometer.getTheta() ) );
 	  
+	}
+	
+	public void correctLocation() {
+		turnTo(nearestHeading(odometer.getTheta()));
+		double heading = nearestHeading(odometer.getTheta());
+		double x = ( (int) (0.5 + (odometer.getX() / Lab5.TILE_SIZE)));
+		if(heading == 0) {
+			squareUp(true);
+			double y = Lab5.TILE_SIZE * ( (int) (0.5 + (odometer.getY() / Lab5.TILE_SIZE)));
+			odometer.setY(y - SENSOR_OFFSET);
+			odometer.setTheta(heading);
+			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
+			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
+		}
+		else if(heading == 90) {
+			squareUp(true);
+			x = Lab5.TILE_SIZE*x;
+			odometer.setX(x - SENSOR_OFFSET);
+			odometer.setTheta(heading);
+			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
+			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
+		}
+		else if(heading == 180) {
+			squareUp(true);
+			double y = Lab5.TILE_SIZE * ( (int) (0.5 + (odometer.getY() / Lab5.TILE_SIZE)));
+			odometer.setY(y + SENSOR_OFFSET);
+			odometer.setTheta(heading);
+			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
+			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
+		}
+		else if(heading == 270) {
+			squareUp(true);
+			x = Lab5.TILE_SIZE *x;
+			odometer.setX(x + SENSOR_OFFSET);
+			odometer.setTheta(heading);
+			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
+			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
+		}
+		//travelTo(x,y/Lab5.TILE_SIZE);
+	}
+	
+	public void squareUp(boolean reverse) {
+		
+		rightMotor.setSpeed(MOTOR_ROTATE);
+		leftMotor.setSpeed(MOTOR_ROTATE);
+		
+		if(reverse) {
+			rightMotor.backward();
+			leftMotor.backward();
+		}
+		else {
+			rightMotor.forward();
+			leftMotor.forward();
+		}
+		
+	  while(rightMotor.isMoving() || leftMotor.isMoving()) {
+		  
+			RColor.fetchSample(RData, 0); // acquire data
+			LColor.fetchSample(LData, 0);
+			
+		   	if(RData[0] < 0.4) {
+		   		rightMotor.stop(true);
+	    	}
+		   	if(LData[0] < 0.4) {
+		   		leftMotor.stop(true);
+		   	}
+
+		  }
 	}
 	
 	//travel to the destination 

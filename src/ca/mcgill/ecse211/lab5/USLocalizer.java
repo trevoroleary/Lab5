@@ -28,12 +28,11 @@ public class USLocalizer {
 	// Navigation navigation = new Navigation(leftMotor, rightMotor);
 
 	public USLocalizer(Odometer odometer, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
-			boolean localizationType, SampleProvider usDistance, Navigation navigation) {
+			SampleProvider usDistance, Navigation navigation) {
 
 		this.odometer = odometer;
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
-		this.isRisingEdge = localizationType;
 		this.usDistance = usDistance;
 		this.usData = new float[usDistance.sampleSize()];
 		// this.usData = usData;
@@ -46,7 +45,7 @@ public class USLocalizer {
 
 	public void localize(int startCorner) {
 
-		if (isRisingEdge) {
+		if (getFilteredData() < wallDistance) {
 			localizeRisingEdge(startCorner);
 		} else {
 			localizeFallingEdge(startCorner);
@@ -95,7 +94,7 @@ public class USLocalizer {
 		rightMotor.stop();
 
 		thetaRotation = (thetaA + thetaB) / 2.0 + 225;
-		navigation.turnTo(thetaRotation);
+		navigation.turnTo(thetaRotation, false);
 
 		if(startCorner == 0)
 			odometer.setXYT(0, 0, 0);
@@ -147,10 +146,10 @@ public class USLocalizer {
 
 		if (thetaA < thetaB) {
 			thetaRotation = ((thetaA + thetaB) / 2.0) + 225 ;
-			navigation.turnTo(thetaRotation);
+			navigation.turnTo(thetaRotation, false);
 		} else {
 			thetaRotation = (thetaA + thetaB) / 2.0 + 180;
-			navigation.turnTo(thetaRotation);
+			navigation.turnTo(thetaRotation, false);
 		}
 
 		if(startCorner == 0)

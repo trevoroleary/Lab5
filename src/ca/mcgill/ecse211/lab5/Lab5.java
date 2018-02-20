@@ -1,6 +1,7 @@
 package ca.mcgill.ecse211.lab5;
 
 import ca.mcgill.ecse211.odometer.*;
+import ca.mcgill.ecse211.color.*;
 import ca.mcgill.ecse211.lab5.*;
 import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
@@ -32,12 +33,16 @@ public class Lab5 {
 	private static SampleProvider LColor = LSensor.getMode("Red");
 	private static float[] LData = new float[LColor.sampleSize()];
 	
+	private static SensorModes RGBSensor = new EV3ColorSensor(LocalEV3.get().getPort("S4"));
+	private static SampleProvider RGBColor = RGBSensor.getMode("RGB");
+	private static float[] RGBData = new float[RGBColor.sampleSize()];
+	
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 	private static final Port usPort = LocalEV3.get().getPort("S1");
 	//private static final Port lightPort = LocalEV3.get().getPort("S1");
 
-	private static boolean isRisingEdge = true;
 	private static int startCorner;
+	public static Color targetColor;
 	
 
 	public static final double WHEEL_RAD = 2.12;//2.12
@@ -64,26 +69,7 @@ public class Lab5 {
 		Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
 
 		Display odometrydisplay = new Display(lcd); // No need to change
-		Navigation navigation = new Navigation(odometer, leftMotor, rightMotor);
-
-		do {
-			// clear the display
-			lcd.clear();
-
-			// ask the user whether the motors should drive in a square or float
-			lcd.drawString("< Left | Right >", 0, 0);
-			lcd.drawString("       |        ", 0, 1);
-			lcd.drawString("Rising | Falling", 0, 2);
-			lcd.drawString("Edge	  | Edge", 0, 3);
-			lcd.drawString("       |        ", 0, 4);
-
-			buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
-		} while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT);
-
-		if (buttonChoice == Button.ID_LEFT)
-			isRisingEdge = true;
-		else 
-			isRisingEdge = false;
+		//Navigation navigation = new Navigation(odometer, leftMotor, rightMotor);
 
 		do {
 			// clear the display
@@ -113,51 +99,65 @@ public class Lab5 {
 		if (buttonChoice == Button.ID_UP)
 			startCorner = 0;
 		
+		do {
+			// clear the display
+			lcd.clear();
+
+			// ask the user whether the motors should drive in a square or float
+			lcd.drawString("       1        ", 0, 0);
+			lcd.drawString("      Red       ", 0, 1);
+			lcd.drawString("4 White   Blue 2", 0, 2);
+			lcd.drawString("    Yellow      ", 0, 3);
+			lcd.drawString("       3        ", 0, 4);
+
+			buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
+		} while (
+				buttonChoice != Button.ID_LEFT && 
+				buttonChoice != Button.ID_RIGHT && 
+				buttonChoice != Button.ID_DOWN && 
+				buttonChoice != Button.ID_UP
+				);
+		
+		if (buttonChoice == Button.ID_RIGHT){
+			targetColor = Color.BLUE;
+		}
+		if (buttonChoice == Button.ID_DOWN){
+			targetColor = Color.YELLOW;
+		}
+		if (buttonChoice == Button.ID_LEFT){
+			targetColor = Color.WHITE;
+		}
+		if (buttonChoice == Button.ID_UP){
+			targetColor = Color.RED;
+			}
 		
 		
 		Thread odoThread = new Thread(odometer);
 		odoThread.start();
 		
-		/**
-		 * display commented out (trying to fix overloading thred)
-		 */
 		Thread ododisplayThread = new Thread(odometrydisplay);
 		ododisplayThread.start();
 
-		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, isRisingEdge, usDistance, navigation);
-		LightLocalizer LightLocalizer = new LightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData, LData);
-		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor);
+		//colorSensor colorSensor= new colorSensor(RGBData, RGBColor, targetColor);
+		lightLocalizer lightLocalizer = new lightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData, LData);
+		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer);
+		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
 
-		/*
-		// UltraSonic Localization
-		USLocalizer.localize(startCorner);
-
-		//while (Button.waitForAnyPress() != Button.ID_ENTER);
-
-		LightLocalizer.localization(startCorner);
-		
-		
-		
-		LightLocalizer.travelTo(0, 1*TILE_SIZE);
-		
-		LightLocalizer.travelTo(1*TILE_SIZE, 1*TILE_SIZE);
-		
-		*/
 		
 		USLocalizer.localize(startCorner);
-		LightLocalizer.correctXY(startCorner);
-		LightLocalizer.setXTOffset(startCorner);
-		//LightLocalizer.travelTo(0, 0);
-		//LightLocalizer.turnTo(0);
+		lightLocalizer.correctXY(startCorner);
+		lightLocalizer.setXTOffset(startCorner);
 		
-		
-		/*
-	
 		navigator.travelTo(0, 2);
+		lightLocalizer.correctLocation();
 		navigator.travelTo(2, 2);
+		lightLocalizer.correctLocation();
 		navigator.travelTo(2, 0);
+		lightLocalizer.correctLocation();
 		navigator.travelTo(0, 0);
-		*/
+		lightLocalizer.correctLocation();
+		
+		
 		
 		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);

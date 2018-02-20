@@ -19,6 +19,7 @@ public class Navigation extends Thread {
 	private boolean isNavigating;
 	private Odometer odometer;
 	public static int pointcounter;
+	public lightLocalizer lightLocalizer;
 
 	// angle toward destination
 	private double Theta;
@@ -41,13 +42,14 @@ public class Navigation extends Thread {
 	 * @param rightMotor
 	 * 
 	 */
-	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor) {
+	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, lightLocalizer lightLocalizer) {
 
 
 
 		this.odometer = odo;
 		this.rightMotor = rightMotor;
 		this.leftMotor = leftMotor;
+		this.lightLocalizer = lightLocalizer;
 
 		try {
 			this.odometer = Odometer.getOdometer();
@@ -86,7 +88,7 @@ public class Navigation extends Thread {
 
 		// rotate toward destination
 
-		turnTo(Theta);
+		turnTo(Theta, true);
 
 		// move straight
 		rightMotor.setSpeed(MOTOR_STRAIGHT);
@@ -102,12 +104,10 @@ public class Navigation extends Thread {
 	 * traveling to next waypoint
 	 * 
 	 */
-	public void turnTo(double theta) {
+	public void turnTo(double theta, boolean localizer) {
 		boolean turnleft = false;
-		double currTheta = currentTheta;
-		double angle = 0;
-
-		angle = theta - currTheta;
+		double currTheta = odometer.getTheta();
+		double angle = theta - currTheta;
 
 		if (angle < -180) {
 			angle = angle + 360;
@@ -134,6 +134,8 @@ public class Navigation extends Thread {
 		}
 
 		currentTheta = theta;
+		if(localizer)
+			lightLocalizer.correctLocation();
 
 	}
 
