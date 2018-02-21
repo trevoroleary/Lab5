@@ -25,8 +25,8 @@ public class lightLocalizer extends Thread  {
 	private Odometer odometer;
 	
 	//initialize parameters
-	public static final int MOTOR_ROTATE = 50;
-	private static final int MOTOR_STRAIGHT = 150;
+	public static final int MOTOR_ROTATE = Lab5.MOTOR_ROTATE;
+	private static final int MOTOR_STRAIGHT = Lab5.MOTOR_STRAIGHT;
 	public static final double WHEEL_RAD = 2.05;
 	public static final double TRACK = 10.2;	//17.115
 	private final double SENSOR_OFFSET = 5.0;	//distance between center of the track and light sensor
@@ -100,13 +100,11 @@ public class lightLocalizer extends Thread  {
 		}	
 		else if(startCorner == 2) {
 			odometer.setX((GRID_COORDS*Lab5.TILE_SIZE) + SENSOR_OFFSET);
-			//odometer.setY(7*Lab5.TILE_SIZE + SENSOR_OFFSET);
 			travelTo(GRID_COORDS, GRID_COORDS);
 			turnTo(180);
 		}
 		else if(startCorner == 3) {
 			odometer.setY((GRID_COORDS*Lab5.TILE_SIZE) + SENSOR_OFFSET);
-			//odometer.setY(7*Lab5.TILE_SIZE);
 			travelTo(0, GRID_COORDS);
 			turnTo(90);
 		}
@@ -121,41 +119,14 @@ public class lightLocalizer extends Thread  {
 		leftMotor.forward();
 		rightMotor.forward();
 		
-	  while(rightMotor.isMoving() || leftMotor.isMoving()) {
-		  
-		RColor.fetchSample(RData, 0); // acquire data
-		LColor.fetchSample(LData, 0);
-		
-	    
-	   	if(RData[0] < 0.4) {
-	   		//leftMotor.stop(true);
-	   		rightMotor.stop(true);
-	   		//Navigating = false;
-	   		//fixTheta(0);
-	   		//odometer.setY(-SENSOR_OFFSET);
-    	}
-	   	if(LData[0] < 0.4) {
-	   		leftMotor.stop(true);
-	   		//rightMotor.stop(false);
-	   		//Navigating = false;
-	   		//fixTheta(1);
-	   		//odometer.setY(-SENSOR_OFFSET);
-	   	}
+		squareUp(false);
 
-	  }
 	  odometer.setTheta( nearestHeading( odometer.getTheta() ) );
 	  correctX(startCorner);
 	}
 	
 	public void correctX(int startCorner) {
-		/*
-		leftMotor.stop(true);
-		rightMotor.stop(false);
-		
-		leftMotor.setSpeed(MOTOR_STRAIGHT);
-		rightMotor.setSpeed(MOTOR_STRAIGHT);
-		*/
-		
+
 		setYOffset(startCorner);
 		
 		leftMotor.rotate(-180, true);
@@ -170,27 +141,8 @@ public class lightLocalizer extends Thread  {
 		leftMotor.forward();
 		rightMotor.forward();
 		
-	  while(rightMotor.isMoving() || leftMotor.isMoving()) {
-		  
-		RColor.fetchSample(RData, 0); // acquire data
-		LColor.fetchSample(LData, 0);
-		
-	   	if(RData[0] < 0.4) {
-	   		//leftMotor.stop(true);
-	   		rightMotor.stop(true);
-	   		//fixTheta(0);
-	   		//odometer.setX(-SENSOR_OFFSET);
-	   		//Navigating = false;
-    	}
-	   	if(LData[0] < 0.4) {
-	   		leftMotor.stop(true);
-	   		//rightMotor.stop(false);
-	   		//fixTheta(1);
-	   		//odometer.setX(-SENSOR_OFFSET);
-	   		//Navigating = false;
-	   	}
+		squareUp(false);
 
-	  }
 	  odometer.setTheta( nearestHeading( odometer.getTheta() ) );
 	  
 	}
@@ -231,7 +183,6 @@ public class lightLocalizer extends Thread  {
 			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
 			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
 		}
-		//travelTo(x,y/Lab5.TILE_SIZE);
 	}
 	
 	public void squareUp(boolean reverse) {

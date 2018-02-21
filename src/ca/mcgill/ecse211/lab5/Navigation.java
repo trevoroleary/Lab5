@@ -13,7 +13,8 @@ public class Navigation extends Thread {
 
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
-	private static final int MOTOR_STRAIGHT = 80;
+	private static final int MOTOR_STRAIGHT = Lab5.MOTOR_STRAIGHT;
+	private static final int MOTOR_ROTATE = Lab5.MOTOR_ROTATE;
 	public static final double WHEEL_RAD = 2.12;
 	public static final double TRACK = 16.05;
 	private boolean isNavigating;
@@ -122,8 +123,8 @@ public class Navigation extends Thread {
 			turnleft = false;
 		}
 
-		leftMotor.setSpeed(100);
-		rightMotor.setSpeed(100);
+		leftMotor.setSpeed(MOTOR_ROTATE);
+		rightMotor.setSpeed(MOTOR_ROTATE);
 
 		if (turnleft) {
 			leftMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, angle), true);

@@ -49,6 +49,8 @@ public class Lab5 {
 	public static final double TRACK = 10.2;//
 	public static final double TILE_SIZE = 30.48;
 	public static final int GRID_SIZE = 4;
+	public static final int MOTOR_ROTATE = 80;
+	public static final int MOTOR_STRAIGHT = 150;
 
 	static SensorModes ultrasonicSensor = new EV3UltrasonicSensor(usPort);
 	static SampleProvider usDistance = ultrasonicSensor.getMode("Distance");
@@ -138,7 +140,9 @@ public class Lab5 {
 		Thread ododisplayThread = new Thread(odometrydisplay);
 		ododisplayThread.start();
 
-		//colorSensor colorSensor= new colorSensor(RGBData, RGBColor, targetColor);
+		colorSensor colorSensor= new colorSensor(RGBData, RGBColor, targetColor);
+		colorSensor.start();
+		
 		lightLocalizer lightLocalizer = new lightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData, LData);
 		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer);
 		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
@@ -148,11 +152,11 @@ public class Lab5 {
 		lightLocalizer.correctXY(startCorner);
 		lightLocalizer.setXTOffset(startCorner);
 		
-		navigator.travelTo(0, 2);
+		navigator.travelTo(0, 6);
 		lightLocalizer.correctLocation();
-		navigator.travelTo(2, 2);
+		navigator.travelTo(6, 6);
 		lightLocalizer.correctLocation();
-		navigator.travelTo(2, 0);
+		navigator.travelTo(6, 0);
 		lightLocalizer.correctLocation();
 		navigator.travelTo(0, 0);
 		lightLocalizer.correctLocation();
