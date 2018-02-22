@@ -93,17 +93,17 @@ public class USLocalizer {
 		leftMotor.stop(true);
 		rightMotor.stop();
 
-		thetaRotation = (thetaA + thetaB) / 2.0 + 225;
+		thetaRotation = 225 - (thetaA + thetaB) / 2.0;
 		navigation.turnTo(thetaRotation, false);
 
 		if(startCorner == 0)
 			odometer.setXYT(0, 0, 0);
 		if(startCorner == 1)
-			odometer.setXYT(7*TILE_SIZE, 0, 270);
+			odometer.setXYT(7*TILE_SIZE - 1, 0, 270);
 		if(startCorner == 2)
-			odometer.setXYT(7*TILE_SIZE,7*TILE_SIZE,180);
+			odometer.setXYT(7*TILE_SIZE - 1,7*TILE_SIZE - 1,180);
 		if(startCorner == 3)
-			odometer.setXYT(0, 7*TILE_SIZE, 90);
+			odometer.setXYT(0, 7*TILE_SIZE - 1, 90);
 		
 
 	}

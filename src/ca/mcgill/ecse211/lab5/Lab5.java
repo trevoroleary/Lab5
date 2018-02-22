@@ -1,6 +1,7 @@
 package ca.mcgill.ecse211.lab5;
 
 import ca.mcgill.ecse211.odometer.*;
+import ca.mcgill.ecse211.search.*;
 import ca.mcgill.ecse211.color.*;
 import ca.mcgill.ecse211.lab5.*;
 import lejos.hardware.Button;
@@ -43,14 +44,17 @@ public class Lab5 {
 
 	private static int startCorner;
 	public static Color targetColor;
+	public static int[] LL = new int[] {1, 1};
+	public static int[] UR = new int[] {5,5};
+	
 	
 
 	public static final double WHEEL_RAD = 2.12;//2.12
 	public static final double TRACK = 10.2;//
 	public static final double TILE_SIZE = 30.48;
-	public static final int GRID_SIZE = 4;
-	public static final int MOTOR_ROTATE = 80;
-	public static final int MOTOR_STRAIGHT = 150;
+	public static final int GRID_SIZE = 8;
+	public static final int MOTOR_ROTATE = 105;
+	public static final int MOTOR_STRAIGHT = 185;
 
 	static SensorModes ultrasonicSensor = new EV3UltrasonicSensor(usPort);
 	static SampleProvider usDistance = ultrasonicSensor.getMode("Distance");
@@ -152,6 +156,14 @@ public class Lab5 {
 		lightLocalizer.correctXY(startCorner);
 		lightLocalizer.setXTOffset(startCorner);
 		
+		navigator.gotoLowerLeft(LL, UR);
+		
+		
+		Search searcher = new Search(LL, UR, colorSensor, odometer, usDistance, navigator);
+		
+		searcher.beginSearch();
+		
+		/*
 		navigator.travelTo(0, 6);
 		lightLocalizer.correctLocation();
 		navigator.travelTo(6, 6);
@@ -160,7 +172,7 @@ public class Lab5 {
 		lightLocalizer.correctLocation();
 		navigator.travelTo(0, 0);
 		lightLocalizer.correctLocation();
-		
+		*/
 		
 		
 		

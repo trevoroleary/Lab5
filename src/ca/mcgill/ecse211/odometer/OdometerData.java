@@ -218,4 +218,17 @@ public class OdometerData {
 		return theta;
 	}
 
+	public double nearestHeading() {
+		double heading = getTheta();
+		if((0 - heading) > -45)
+			return 0.0;
+		else if((90 - heading) > -45)
+			return 90.0;
+		else if((180 - heading) > -45)
+			return 180.0;
+		else if((270 - heading) > -45)
+			return 270.0;
+		else
+			return 0.0;
+  }
 }

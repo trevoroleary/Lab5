@@ -30,7 +30,7 @@ public class lightLocalizer extends Thread  {
 	public static final double WHEEL_RAD = 2.05;
 	public static final double TRACK = 10.2;	//17.115
 	private final double SENSOR_OFFSET = 5.0;	//distance between center of the track and light sensor
-	private final int GRID_COORDS = Lab5.GRID_SIZE - 1;
+	private final int GRID_COORDS = Lab5.GRID_SIZE - 2;
 
 	//destination position
 	private double x;

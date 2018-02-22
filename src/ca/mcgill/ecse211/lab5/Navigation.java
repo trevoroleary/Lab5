@@ -61,6 +61,51 @@ public class Navigation extends Thread {
 
 	}
 
+	public void gotoLowerLeft(int[] LL, int[] UR) {
+		int x = (int) ((odometer.getX()/Lab5.TILE_SIZE) + 0.5);
+		int y = (int) ((odometer.getY()/Lab5.TILE_SIZE) + 0.5);
+		int dx = x - LL[0];
+		int dy = y - LL[1];
+		
+		if(x < LL[0]) {
+			for(int i = 1; i < dy; i++) {
+				travelTo(x , y - i);
+				if(i % 2 == 0)
+					turnTo(90, true);
+			}
+			travelTo(x,LL[1]);
+			travelTo(LL[0],LL[1]);
+		}
+		
+		else if(y < LL[1]) {
+			for(int i = 1; i < dy; i++) {
+				travelTo(x - i , y);
+				if(i % 2 == 0)
+					turnTo(90, true);
+			}
+			travelTo(LL[0],y);
+			travelTo(LL[0],LL[1]);
+		}
+		
+		else if(UR[0] != x) {
+			for(int i = 1; i < dy; i++) {
+				travelTo(x , y - i);
+				if(i % 2 == 0)
+					turnTo(90, true);
+			}
+			travelTo(x,LL[1]);
+			for(int i = 1; i < dy; i++) {
+				travelTo(x - i , x);
+				if(i % 2 == 0) 
+					turnTo(90, true);
+			}
+			travelTo(LL[0],LL[1]);
+		}
+		
+		turnTo(90,true);
+		turnTo(0,true);
+	}
+	
 	/**
 	 * This method is used to calculate the distance to map point given
 	 * Cartesian coordinates x and y
@@ -136,10 +181,16 @@ public class Navigation extends Thread {
 
 		currentTheta = theta;
 		if(localizer)
-			lightLocalizer.correctLocation();
-
+			lightLocalizer.correctLocation();		
 	}
 
+	public void turn(double theta) {
+		leftMotor.setSpeed(MOTOR_ROTATE);
+		rightMotor.setSpeed(MOTOR_ROTATE);
+		
+		leftMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, theta), true);
+		rightMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, theta), false);
+	}
 	/**
 	 * This method determines whether another thread has called travelTo and
 	 * turnTo methods or not
