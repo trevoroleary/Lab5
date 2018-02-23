@@ -70,7 +70,6 @@ public class lightLocalizer extends Thread  {
 	    try {
 			this.odometer = Odometer.getOdometer();
 		} catch (OdometerExceptions e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -111,6 +110,14 @@ public class lightLocalizer extends Thread  {
 		
 	}
 	
+	/**
+	 * this method travels forward to square up with the line infront,
+	 * it then calls correctX to square up with the line 90 degrees to the right
+	 * 
+	 * this method should only be called when the robot is facing clockwise in one of the corners
+	 * 
+	 * @param startCorner allows this method to correctly set the coordinates in the odometer
+	 */
 	public void correctXY(int startCorner) {
 				
 		leftMotor.setSpeed(MOTOR_ROTATE);
@@ -121,11 +128,17 @@ public class lightLocalizer extends Thread  {
 		
 		squareUp(false);
 
-	  odometer.setTheta( nearestHeading( odometer.getTheta() ) );
+	  odometer.setTheta(odometer.nearestHeading());
 	  correctX(startCorner);
 	}
 	
-	public void correctX(int startCorner) {
+	
+	/**
+	 * this method is called by correctXY, it squares up with the line that is 90degress to the robots right
+	 * 
+	 * @param startCorner allows the robot to correct the odometer coordinates for each corner
+	 */
+	private void correctX(int startCorner) {
 
 		setYOffset(startCorner);
 		
@@ -143,48 +156,41 @@ public class lightLocalizer extends Thread  {
 		
 		squareUp(false);
 
-	  odometer.setTheta( nearestHeading( odometer.getTheta() ) );
+	  odometer.setTheta(odometer.nearestHeading());
 	  
 	}
 	
 	public void correctLocation() {
-		turnTo(nearestHeading(odometer.getTheta()));
-		double heading = nearestHeading(odometer.getTheta());
+		turnTo(odometer.nearestHeading());
+		double heading = odometer.nearestHeading();
 		double x = ( (int) (0.5 + (odometer.getX() / Lab5.TILE_SIZE)));
+		
 		if(heading == 0) {
 			squareUp(true);
 			double y = Lab5.TILE_SIZE * ( (int) (0.5 + (odometer.getY() / Lab5.TILE_SIZE)));
 			odometer.setY(y - SENSOR_OFFSET);
-			odometer.setTheta(heading);
-			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
-			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
 		}
 		else if(heading == 90) {
 			squareUp(true);
 			x = Lab5.TILE_SIZE*x;
 			odometer.setX(x - SENSOR_OFFSET);
-			odometer.setTheta(heading);
-			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
-			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
 		}
 		else if(heading == 180) {
 			squareUp(true);
 			double y = Lab5.TILE_SIZE * ( (int) (0.5 + (odometer.getY() / Lab5.TILE_SIZE)));
 			odometer.setY(y + SENSOR_OFFSET);
-			odometer.setTheta(heading);
-			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
-			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
 		}
 		else if(heading == 270) {
 			squareUp(true);
 			x = Lab5.TILE_SIZE *x;
 			odometer.setX(x + SENSOR_OFFSET);
-			odometer.setTheta(heading);
-			leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
-			rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
 		}
+		
+		odometer.setTheta(heading);
+		leftMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), true);
+		rightMotor.rotate(convertDistance(WHEEL_RAD, SENSOR_OFFSET), false);
 	}
-	
+
 	public void squareUp(boolean reverse) {
 		
 		rightMotor.setSpeed(MOTOR_ROTATE);
@@ -284,19 +290,5 @@ public class lightLocalizer extends Thread  {
 	  private static int convertAngle(double radius, double width, double angle) {
 		    return convertDistance(radius, Math.PI * width * angle / 360.0);
 		  }
-
-	  private static double nearestHeading(double heading) {
-		  
-			if((0 - heading) > -45)
-				return 0.0;
-			else if((90 - heading) > -45)
-				return 90.0;
-			else if((180 - heading) > -45)
-				return 180.0;
-			else if((270 - heading) > -45)
-				return 270.0;
-			else
-				return 0.0;
-	  }
 }
 

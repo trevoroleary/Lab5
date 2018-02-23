@@ -24,6 +24,7 @@ public class USLocalizer {
 
 	private boolean isRisingEdge;
 	private SampleProvider usDistance;
+	private boolean turn = false;
 
 	// Navigation navigation = new Navigation(leftMotor, rightMotor);
 
@@ -44,6 +45,7 @@ public class USLocalizer {
 	}
 
 	public void localize(int startCorner) {
+
 
 		if (getFilteredData() < wallDistance) {
 			localizeRisingEdge(startCorner);
@@ -145,7 +147,7 @@ public class USLocalizer {
 		rightMotor.stop();
 
 		if (thetaA < thetaB) {
-			thetaRotation = ((thetaA + thetaB) / 2.0) + 225 ;
+			thetaRotation = 225 - ((thetaA + thetaB) / 2.0) ;
 			navigation.turnTo(thetaRotation, false);
 		} else {
 			thetaRotation = (thetaA + thetaB) / 2.0 + 180;
@@ -167,4 +169,21 @@ public class USLocalizer {
 		usDistance.fetchSample(usData, 0);
 		return (int) (usData[0] * 100);
 	}
+	
+	public int getAvgData(int setSize) {
+		int avgData = 0;
+		
+		for(int i = 0; i < setSize; i++) {
+			
+			usDistance.fetchSample(usData, 0);
+			
+				if(((int) (usData[0]*100) ) > 200) {
+					avgData =+ 200/setSize;
+				}
+				else
+					avgData =+ (int) (usData[0]*100)/setSize;
+		}
+		return avgData;
+	}
+	
 }

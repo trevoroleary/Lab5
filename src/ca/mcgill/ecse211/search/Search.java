@@ -4,6 +4,7 @@ import ca.mcgill.ecse211.color.Color;
 import ca.mcgill.ecse211.color.colorSensor;
 import ca.mcgill.ecse211.lab5.Lab5;
 import ca.mcgill.ecse211.lab5.Navigation;
+import ca.mcgill.ecse211.lab5.USLocalizer;
 import ca.mcgill.ecse211.odometer.Odometer;
 import lejos.robotics.SampleProvider;
 
@@ -13,28 +14,33 @@ public class Search {
 	private final int[] UR;
 	private colorSensor sensor;
 	private Odometer odometer;
-	private SampleProvider usDistance;
 	private Navigation navigator;
-	private float[] usSample;
-	private float usData;
+	private USLocalizer USData;
 	private boolean upTrue = true;
+	
+	private int sampleSize = 25;
+	private int avgData;
+	
 	
 	
 	private float blockInFront = 10;
 	
-	public Search(int[] LL, int[] UR, colorSensor colorSensor, Odometer odometer, SampleProvider usDistance, Navigation navigator) {
+	public Search(int[] LL, int[] UR, colorSensor colorSensor, Odometer odometer, USLocalizer USData, Navigation navigator) {
 		
 		this.LL = LL;
 		this.UR = UR;
 		this.sensor = colorSensor;
 		this.odometer = odometer;
-		this.usDistance = usDistance;
 		this.navigator = navigator;
-		this.usSample = new float[1];
-		this.usData = 0;
-		
+		this.USData = USData;
 	}
 	
+	
+	/**
+	 * This method initiates searching
+	 * should only be called one the robot is in the LL of the search area.
+	 * 
+	 */
 	public void beginSearch() {
 		checkSide();
 		checkSide();
@@ -42,51 +48,71 @@ public class Search {
 		checkSide();
 	}
 	
+	
+	/**
+	 * This method checks in front and 45deg on either side of the robot for blocks
+	 * 
+	 * @return returns an array of size 3. If all elements are 0 there is nothing on either side of the robot or infront
+	 * 			if i0 is 1 there is something on the left,
+	 * 			if i1 is 1 there is something in front,
+	 * 			if i2 is 1 there is something on the right
+	 */
 	public int[] checkSide() {
-		int[] returnVals = new int[] {0,0,0}; // 1 at 0 = nothing.. 1 at 1 = something right.... 1 at 2 = something left
+		int[] returnVals = new int[] {0,0,0}; 
 		
-		//Looks to its right for object
-		navigator.turn(45);
-
-		//TODO USDATA GET SAMPLE AND RETURN IF OBJECT
+		avgData = USData.getAvgData(sampleSize);
 		
 		if(false) {
-			usData = 0;
 			returnVals[1] = 1;
 			//TODO IDENTIFY BLOCK WITH FIND AHEAD
 			return returnVals;
 		}
 		
-		//Looks to its left for an object
+		navigator.turn(45);
+		avgData = USData.getAvgData(sampleSize);
+		
+		if(false) {
+			returnVals[2] = 1;
+			//TODO IDENTIFY BLOCK WITH FIND AHEAD
+			return returnVals;
+		}
+		
 		else {
-			navigator.turn(-90);
-			usData = 0;
 			
-			//TODO USDATA GET SAMPLE AND RETURN IF OBJECT
+			navigator.turn(-90);
+			avgData = USData.getAvgData(sampleSize);
 			
 			if(false) {
-				usData = 0;
-				returnVals[2] = 1;
+				returnVals[0] = 1;
+				//TODO IDENTIFY BLOCK WITH FIND AHEAD
 				return returnVals;
 			}
+			
 			else {
-				if(upTrue) 
+				if(upTrue) {
 					navigator.turnTo(0,false);
-				else
+				}
+				else {
 					navigator.turnTo(180, false);
-			    usData = 0;
+				}
 			    nextLine();
 			    return returnVals;
 			}
-
 		}
-		
 	}
+
 	
+	/**
+	 * This method increments forward one tile length
+	 * If the robot it at the edge of the search area it calls nextSection instead
+	 * 
+	 * TODO while this method is moving forward, object avoidance needs to be implemented
+	 */
 	public void nextLine() {
 		int x = (int) ((odometer.getX()/Lab5.TILE_SIZE) + 0.5);
 		int y = (int) ((odometer.getY()/Lab5.TILE_SIZE) + 0.5);
 		int theta = (int) (odometer.nearestHeading() + 0.5);
+		
 		if((y == UR[1] && theta == 0) || (y == LL[1] && theta == 180)) {
 			nextSection();
 		}
@@ -95,7 +121,6 @@ public class Search {
 				navigator.travelTo(x, y + 1);
 				navigator.turnTo(0, true);
 				checkSide();
-				
 			}
 			else {
 				navigator.travelTo(x, y - 1);
@@ -105,6 +130,11 @@ public class Search {
 		}
 	}
 	
+	
+	/**
+	 * this method increments the robots x value so that it can start the next state of its searching in the search area
+	 * This method also orients the robot to face inwards so an additional line can be searched
+	 */
 	public void nextSection() {
 		int x = (int) ((odometer.getX()/Lab5.TILE_SIZE) + 0.5);
 		int y = (int) ((odometer.getY()/Lab5.TILE_SIZE) + 0.5);
@@ -118,6 +148,6 @@ public class Search {
 			upTrue = true;
 			navigator.turnTo(0, true);
 		}
-		}
 	}
+}
 

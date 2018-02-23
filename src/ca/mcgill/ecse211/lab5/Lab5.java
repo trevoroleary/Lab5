@@ -44,7 +44,7 @@ public class Lab5 {
 
 	private static int startCorner;
 	public static Color targetColor;
-	public static int[] LL = new int[] {1, 1};
+	public static int[] LL = new int[] {2, 2};
 	public static int[] UR = new int[] {5,5};
 	
 	
@@ -152,6 +152,7 @@ public class Lab5 {
 		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
 
 		
+		
 		USLocalizer.localize(startCorner);
 		lightLocalizer.correctXY(startCorner);
 		lightLocalizer.setXTOffset(startCorner);
@@ -159,10 +160,9 @@ public class Lab5 {
 		navigator.gotoLowerLeft(LL, UR);
 		
 		
-		Search searcher = new Search(LL, UR, colorSensor, odometer, usDistance, navigator);
+		Search searcher = new Search(LL, UR, colorSensor, odometer, USLocalizer, navigator);
 		
 		searcher.beginSearch();
-		
 		/*
 		navigator.travelTo(0, 6);
 		lightLocalizer.correctLocation();

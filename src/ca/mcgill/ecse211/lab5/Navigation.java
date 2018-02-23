@@ -94,8 +94,8 @@ public class Navigation extends Thread {
 					turnTo(90, true);
 			}
 			travelTo(x,LL[1]);
-			for(int i = 1; i < dy; i++) {
-				travelTo(x - i , x);
+			for(int i = 1; i < dx; i++) {
+				travelTo(x - i , LL[1]);
 				if(i % 2 == 0) 
 					turnTo(90, true);
 			}
