@@ -19,6 +19,7 @@ public class Search {
 	private Navigation navigator;
 	private USLocalizer USData;
 	private boolean upTrue = true;
+	private boolean navigating = true;
 
 	private int sampleSize = 25;
 	private int avgData;
@@ -41,9 +42,6 @@ public class Search {
 	 * the LL of the search area.
 	 * 
 	 */		
-	
-
-	
 	
 }
 	
@@ -170,12 +168,48 @@ public class Search {
 			}
 		}
 	}
-
+	
 	/**
 	 * this method increments the robots x value so that it can start the next
 	 * state of its searching in the search area This method also orients the
 	 * robot to face inwards so an additional line can be searched
 	 */
+	public void goUp() {
+		sensorRight();
+		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
+		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
+		double theta = odometer.nearestHeading();
+		navigator.travelTo(x, y);
+		navigator.turnTo(theta, true);
+		
+		if(y == UR[1] && theta == 0) 
+			navigator.turnTo(90,true);
+		else if(x == UR[0] && theta == 90) 
+			navigator.turnTo(180, true);
+		else if(y == LL[1] && theta == 180)
+			navigator.turnTo(270, true);
+		else if(x == LL[0] && theta == 270)
+			navigator.goToUpperRight(UR);
+		
+		
+		
+		Odometer.rightMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE), true);
+		Odometer.leftMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE),true);
+		navigating = true;
+		
+		while(navigating) {
+			if(deriData() > blockInFront) {
+				Odometer.rightMotor.stop(true);
+				Odometer.leftMotor.stop(true);
+				navigating = false;
+				getBlock();
+			}
+			else if(!Odometer.rightMotor.isMoving() && !Odometer.leftMotor.isMoving()) {
+				navigating = false;
+			}
+		}
+	}
+	
 	public void nextSection() {
 		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
 		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);

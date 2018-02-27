@@ -147,7 +147,7 @@ public class Lab5 {
 
 		lightLocalizer lightLocalizer = new lightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData,
 				LData);
-		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer);
+		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer, );
 		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
 		//Search searcher = new Search(LL, UR, colorSensor, odometer, USLocalizer, navigator);
 	
@@ -218,7 +218,7 @@ public class Lab5 {
 
 		colorSensor colorSensor = new colorSensor(RGBData, RGBColor, targetColor);
 		colorSensor.start();
-		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer);
+		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer, LL, UR);
 		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
 		Search searcher = new Search(LL, UR, colorSensor, odometer, USLocalizer, navigator);
 		
