@@ -82,6 +82,44 @@ public class Lab5 {
 		// Navigation navigation = new Navigation(odometer,
 		// leftMotor,rightMotor);
 
+		
+		do {
+			// clear the display
+			lcd.clear();
+
+			// ask the user whether the motors should drive in a square or float
+			lcd.drawString("       0        ", 0, 0);
+			lcd.drawString("Test Block Searcher", 0, 1);
+			lcd.drawString("                 ", 0, 2);
+			lcd.drawString("Test Color Sensor", 0, 3);
+			lcd.drawString("       1         ", 0, 4);
+
+			buttonChoice = Button.waitForAnyPress(); // Record choice (left or
+														// right press)
+		} while (buttonChoice != Button.ID_DOWN
+				&& buttonChoice != Button.ID_UP);
+
+		if (buttonChoice == Button.ID_DOWN){
+			
+			Thread odoThreadTest = new Thread(odometer);
+			odoThreadTest.start();
+
+			Thread ododisplayThreadTest = new Thread(odometrydisplay);
+			ododisplayThreadTest.start();
+
+			colorSensor colorSensorTest = new colorSensor(RGBData, RGBColor, 5);
+			colorSensorTest.start();
+		
+			buttonChoice = Button.waitForAnyPress();
+			
+			while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT && buttonChoice != Button.ID_DOWN
+					&& buttonChoice != Button.ID_UP);{
+					}
+		}
+		if (buttonChoice == Button.ID_UP){
+			
+		}
+				
 		do {
 			// clear the display
 			lcd.clear();
@@ -98,8 +136,10 @@ public class Lab5 {
 		} while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT && buttonChoice != Button.ID_DOWN
 				&& buttonChoice != Button.ID_UP);
 
-		if (buttonChoice == Button.ID_RIGHT)
-			startCorner = 1;
+		if (buttonChoice == Button.ID_RIGHT){
+			colorSensor colorSensor = new colorSensor(RGBData, RGBColor, targetColor);
+			colorSensor.start();
+		}
 		if (buttonChoice == Button.ID_DOWN)
 			startCorner = 2;
 		if (buttonChoice == Button.ID_LEFT)

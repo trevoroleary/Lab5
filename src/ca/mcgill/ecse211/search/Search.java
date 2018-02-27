@@ -7,9 +7,6 @@ import ca.mcgill.ecse211.lab5.USLocalizer;
 import ca.mcgill.ecse211.odometer.Odometer;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
-import lejos.robotics.SampleProvider;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Search {
 
@@ -17,16 +14,10 @@ public class Search {
 	private final int[] LL;
 	private final int[] UR;
 
-	private colorSensor sensor;
 	private Odometer odometer;
 	private Navigation navigator;
 	private USLocalizer USData;
-	private boolean upTrue = true;
 	private boolean isRight = false;
-	private int sampleSize = 25;
-	private float avgData;
-
-	private float blockInFront = 50;
 	private boolean navigating = false;
 	private boolean foundSomething = false;
 
@@ -35,7 +26,6 @@ public class Search {
 		this.sensorMotor = sensorMotor;
 		this.LL = LL;
 		this.UR = UR;
-		this.sensor = colorSensor;
 		this.odometer = odometer;
 		this.navigator = navigator;
 		this.USData = USData;
@@ -48,87 +38,28 @@ public class Search {
 
 	}
 
+	/**
+	 * This method is the main method for Calling the helper methods in the
+	 * Search class it also stops everything if the once and object of the right
+	 * color is found. this method should only be called once the both is at LL.
+	 * 
+	 * @param
+	 * @return void
+	 */
+
 	public void beginSearch() {
 
 		while (!foundSomething) {
-			if(colorSensor.targetColor == colorSensor.sensorColor) {
-				//TODO this never becomes true ????? HELP DUDE (even though the robot beeps twice after seeing the right color
+			if (colorSensor.targetColor == colorSensor.sensorColor) {
+				// TODO this never becomes true ????? HELP DUDE (even though the
+				// robot beeps twice after seeing the right color
 				foundSomething = true;
+				break;
 			} else {
-			goUp();
+				goUp();
 			}
 		}
 		navigator.goToUpperRight(UR);
-	}
-
-	/**
-	 * This method checks in front and 45deg on either side of the robot for
-	 * blocks
-	 * 
-	 * @return returns an array of size 3. If all elements are 0 there is
-	 *         nothing on either side of the robot or infront if i0 is 1 there
-	 *         is something on the left, if i1 is 1 there is something in front,
-	 *         if i2 is 1 there is something on the right
-	 */
-
-	public void checkSide() {
-		int[] returnVals = new int[] { 0, 0, 0 };
-
-		avgData = USData.deriData();
-		LCD.drawString("US:" + avgData, 0, 6, false);
-
-		if (avgData < 25) {
-			returnVals[1] = 1;
-			// TODO IDENTIFY BLOCK WITH FIND AHEAD
-			// AVOID
-			move(avgData - 5);
-			navigator.turnTo(-90, false);
-			move((Lab5.TRACK + 10) / 2);
-
-			navigator.turnTo(90, false);
-			move((Lab5.TRACK + 10) / 2);
-
-			navigator.turnTo(90, false);
-			move((Lab5.TRACK + 10) / 2);
-
-			navigator.turnTo(-90, false);
-			move((Lab5.TRACK + 10) / 2);
-		}
-
-		navigator.turn(45);
-		avgData = USData.deriData();
-
-		if (avgData < 25) {
-			returnVals[2] = 1;
-
-			move(avgData - 5);
-			moveBack(avgData - 5);
-		}
-
-		else {
-
-			navigator.turn(-90);
-			avgData = USData.deriData();
-
-			if (avgData < 25) {
-				returnVals[0] = 1;
-				// TODO IDENTIFY BLOCK WITH FIND AHEAD
-				move(avgData - 5);
-				moveBack(avgData - 5);
-
-			}
-
-			else {
-				if (upTrue) {
-					navigator.turnTo(0, false);
-				} else {
-					navigator.turnTo(180, false);
-				}
-				nextLine();
-
-			}
-		}
-
 	}
 
 	/**
@@ -157,70 +88,12 @@ public class Search {
 	}
 
 	/**
-	 * This method increments forward one tile length If the robot it at the
-	 * edge of the search area it calls nextSection instead
+	 * this method is what is used once the US sensor finds and object. this
+	 * method goes close to block and scans block using the color sensor
 	 * 
-	 * TODO while this method is moving forward, object avoidance needs to be
-	 * implemented
+	 * @return void
+	 * @param
 	 */
-	public void nextLine() {
-		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
-		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
-		int theta = (int) (odometer.nearestHeading() + 0.5);
-
-		if ((y == UR[1] && theta == 0) || (y == LL[1] && theta == 180)) {
-			nextSection();
-		} else {
-			if (upTrue) {
-				navigator.travelTo(x, y + 1);
-				navigator.turnTo(0, true);
-				checkSide();
-			} else {
-				navigator.travelTo(x, y - 1);
-				navigator.turnTo(180, true);
-				checkSide();
-			}
-		}
-	}
-
-	/**
-	 * this method increments the robots x value so that it can start the next
-	 * state of its searching in the search area This method also orients the
-	 * robot to face inwards so an additional line can be searched
-	 */
-	public void nextSection() {
-		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
-		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
-		navigator.travelTo(x, y);
-		navigator.travelTo(x + 1, y);
-		if (y == UR[1]) {
-			upTrue = false;
-			navigator.turnTo(180, true);
-		} else {
-			upTrue = true;
-			navigator.turnTo(0, true);
-		}
-	}
-
-	public void move(double distance) {
-
-
-		Odometer.rightMotor.setSpeed(100);
-		Odometer.leftMotor.setSpeed(100);
-		Odometer.leftMotor.rotate(convertDistance(Lab5.WHEEL_RAD, distance), true);
-		Odometer.rightMotor.rotate(convertDistance(Lab5.WHEEL_RAD, distance), false);
-
-	}
-
-	public void moveBack(double distance) {
-		// AVOID
-
-		Odometer.rightMotor.setSpeed(100);
-		Odometer.leftMotor.setSpeed(100);
-		Odometer.leftMotor.rotate(-convertDistance(Lab5.WHEEL_RAD, distance), true);
-		Odometer.rightMotor.rotate(-convertDistance(Lab5.WHEEL_RAD, distance), false);
-
-	}
 
 	public void getBlock() {
 		navigator.turn(90);
@@ -245,38 +118,55 @@ public class Search {
 				navigating = false;
 				LCD.drawString("Found" + colorSensor.getResponse(), 0, 6, false);
 				foundSomething = true;
-				
+
 			}
 		}
 
 		navigator.travelToNearestEdge();
-		
 
 	}
 
+	/**
+	 * the method makes sure that the US sensor is looking right and if it is
+	 * not it turns it around.
+	 * 
+	 * @return void
+	 * @param
+	 */
 	public void sensorRight() {
-		if (!isRight){
-		isRight = true;
-		sensorMotor.rotate(-90);
+		if (!isRight) {
+			isRight = true;
+			sensorMotor.rotate(-90);
 		}
 
 	}
 
+	/**
+	 * the method makes sure that the US sensor is looking forward and if it is
+	 * not it turns it around.
+	 * 
+	 * @return void
+	 * @param
+	 */
 	public void sensorForward() {
-		if(isRight){
-		isRight = false;
-		sensorMotor.rotate(90);
+		if (isRight) {
+			isRight = false;
+			sensorMotor.rotate(90);
 		}
 	}
 
+	/**
+	 * this method is what increments the robot forward localizing at every
+	 * point as it circles the parameter. it also makes sure the sensor looks 
+	 */
 	public void goUp() {
 		sensorRight();
-		
+
 		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
 		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
-		
+
 		double theta = odometer.nearestHeading();
-		
+
 		navigator.travelTo(x, y);
 		navigator.turnTo(theta, true);
 
@@ -296,14 +186,12 @@ public class Search {
 		navigating = true;
 
 		while (navigating) {
-			LCD.drawString("US:" + avgData, 0, 6, false);
-			//if (USData.deriData() > blockInFront) {
-			if(USData.getFilteredData() < 30) {
+			if (USData.getFilteredData() < 30) {
 				Odometer.rightMotor.stop(true);
 				Odometer.leftMotor.stop(true);
 				navigating = false;
 				getBlock();
-				
+
 			} else if (!Odometer.rightMotor.isMoving() && !Odometer.leftMotor.isMoving()) {
 				navigating = false;
 			}

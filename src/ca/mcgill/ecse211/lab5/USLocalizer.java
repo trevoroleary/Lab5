@@ -1,8 +1,14 @@
 package ca.mcgill.ecse211.lab5;
 
+
+/**
+ * THsi class is the Ultra sonic localization, it roughly aligns the robot up for the next stages in localization
+ */
+
 import ca.mcgill.ecse211.odometer.*;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
+import lejos.hardware.Sound;
 //import ca.mcgill.ecse211.lab4;
 
 public class USLocalizer {
@@ -29,7 +35,7 @@ public class USLocalizer {
 	private boolean isFirst = true;
 
 	// Navigation navigation = new Navigation(leftMotor, rightMotor);
-
+	
 	public USLocalizer(Odometer odometer, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
 			SampleProvider usDistance, Navigation navigation) {
 
@@ -45,7 +51,12 @@ public class USLocalizer {
 		rightMotor.setSpeed(MOTOR_ROTATE);
 
 	}
-
+/**
+ *  calls the rising or falling edge depending on the start corner.
+ * @param startCorner start corner is an int (0 - 3) that indicates which corner the robot starts it
+ * 			this allows the localiztion to set the coordinate properly
+ * @return void
+ */
 	public void localize(int startCorner) {
 
 		if (getFilteredData() < wallDistance) {
@@ -54,7 +65,10 @@ public class USLocalizer {
 			localizeFallingEdge(startCorner);
 		}
 	}
-
+/**
+ * this method uses the ultrasonic sensor to Localize and end up looking forward looking at 0 degrees
+ * @param startCorner allows the set its location and theta properly at the starting corner (int from 0-3)
+ */
 	public void localizeRisingEdge(int startCorner) {
 
 		double thetaA;
@@ -107,9 +121,13 @@ public class USLocalizer {
 			odometer.setXYT(7 * TILE_SIZE, 7 * TILE_SIZE, 180);
 		if (startCorner == 3)
 			odometer.setXYT(1, 7 * TILE_SIZE , 90);
-
+		Sound.beep();
 	}
-
+/**
+ * this method uses the ultrasonic  to look at 0 degrees using the falling algorithm
+ * @param startCorner gives this method the starting corner (int from 1-3)
+ * @return void
+ */
 	public void localizeFallingEdge(int startCorner) {
 
 		double thetaA;
