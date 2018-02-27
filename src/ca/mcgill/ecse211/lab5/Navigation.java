@@ -226,6 +226,50 @@ public class Navigation extends Thread {
 	public static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
+	public void goToUpperRight(int[] UR) {
+		int x = (int) ((odometer.getX()/Lab5.TILE_SIZE) + 0.5);
+		int y = (int) ((odometer.getY()/Lab5.TILE_SIZE) + 0.5);
+		int dx = x - UR[0];
+		int dy = y - UR[1];
+		
+		if(x < UR[0]) {
+			for(int i = 1; i < dy; i++) {
+				travelTo(x , y - i);
+				if(i % 2 == 0)
+					turnTo(90, true);
+			}
+			travelTo(x,UR[1]);
+			travelTo(UR[0],UR[1]);
+		}
+		
+		else if(y < UR[1]) {
+			for(int i = 1; i < dy; i++) {
+				travelTo(x - i , y);
+				if(i % 2 == 0)
+					turnTo(90, true);
+			}
+			travelTo(UR[0],y);
+			travelTo(UR[0],UR[1]);
+		}
+		
+		else if(UR[0] != x) {
+			for(int i = 1; i < dy; i++) {
+				travelTo(x , y - i);
+				if(i % 2 == 0)
+					turnTo(90, true);
+			}
+			travelTo(x,UR[1]);
+			for(int i = 1; i < dx; i++) {
+				travelTo(x - i , UR[1]);
+				if(i % 2 == 0) 
+					turnTo(90, true);
+			}
+			travelTo(UR[0],UR[1]);
+		}
+		
+		turnTo(90,true);
+		turnTo(0,true);
+	}
 
 
 }

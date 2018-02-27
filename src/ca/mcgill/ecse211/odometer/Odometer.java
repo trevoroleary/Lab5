@@ -10,8 +10,8 @@ public class Odometer extends OdometerData implements Runnable {
 	// Motors and related variables
 	private int leftMotorTachoCount;
 	private int rightMotorTachoCount;
-	private EV3LargeRegulatedMotor leftMotor;
-	private EV3LargeRegulatedMotor rightMotor;
+	public static EV3LargeRegulatedMotor leftMotor;
+	public static EV3LargeRegulatedMotor rightMotor;
 
 	private double lastTachoL;
 	private double lastTachoR;
@@ -21,11 +21,12 @@ public class Odometer extends OdometerData implements Runnable {
 
 	private double[] position;
 
-	private static final long ODOMETER_PERIOD = 25; // odometer update period in ms
+	private static final long ODOMETER_PERIOD = 25; // odometer update period in
+													// ms
 
 	/**
-	 * This is the default constructor of this class. It initiates all motors and
-	 * variables once.It cannot be accessed externally.
+	 * This is the default constructor of this class. It initiates all motors
+	 * and variables once.It cannot be accessed externally.
 	 * 
 	 * @param leftMotor
 	 * @param rightMotor
@@ -69,8 +70,8 @@ public class Odometer extends OdometerData implements Runnable {
 	}
 
 	/**
-	 * This class is meant to return the existing Odometer Object. It is meant to be
-	 * used only if an odometer object has been created
+	 * This class is meant to return the existing Odometer Object. It is meant
+	 * to be used only if an odometer object has been created
 	 * 
 	 * @return error if no previous odometer exists
 	 */
@@ -142,5 +143,5 @@ public class Odometer extends OdometerData implements Runnable {
 			}
 		}
 	}
-	
+
 }
