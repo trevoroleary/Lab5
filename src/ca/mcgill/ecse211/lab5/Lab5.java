@@ -78,7 +78,8 @@ public class Lab5 {
 		Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
 
 		Display odometrydisplay = new Display(lcd); // No need to change
-		// Navigation navigation = new Navigation(odometer, leftMotor,rightMotor);
+		// Navigation navigation = new Navigation(odometer,
+		// leftMotor,rightMotor);
 
 		do {
 			// clear the display
@@ -145,50 +146,22 @@ public class Lab5 {
 
 		lightLocalizer lightLocalizer = new lightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData,
 				LData);
-		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer);
+		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer, LL, UR);
 		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
-		// Search searcher = new Search(LL, UR, colorSensor, odometer,
-		// USLocalizer, navigator);
+		Search searcher = new Search(LL, UR, colorSensor, odometer, USLocalizer, navigator, sensorMotor);
 
 		// sensorMotor.forward();
 		// sensorMotor.rotate(100);
 
 		USLocalizer.localize(startCorner);
-		try {
-			USLocalizer.wait();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 
 		lightLocalizer.correctXY(startCorner);
 		lightLocalizer.setXTOffset(startCorner);
-		try {
-			lightLocalizer.wait();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		Button.waitForAnyPress();
+
 		navigator.gotoLowerLeft(LL, UR);
-		Button.waitForAnyPress();
 
-		Timer timer = new Timer();
+		searcher.beginSearch();
 
-		TimerTask tt = new TimerTask() {
-			public void run() {
-				try {
-					beginSearch();
-				} catch (OdometerExceptions e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		};
-
-		timer.schedule(tt, 2000, 1000 * 270);
-
-		navigator.goToUpperRight(UR);
 
 		/*
 		 * navigator.travelTo(0, 6); lightLocalizer.correctLocation();
@@ -204,23 +177,4 @@ public class Lab5 {
 
 	}
 
-	public static void beginSearch() throws OdometerExceptions {
-
-		Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
-		lightLocalizer lightLocalizer = new lightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData,
-				LData);
-		Thread odoThread = new Thread(odometer);
-		odoThread.start();
-
-		colorSensor colorSensor = new colorSensor(RGBData, RGBColor, targetColor);
-		colorSensor.start();
-		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer);
-		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
-		Search searcher = new Search(LL, UR, colorSensor, odometer, USLocalizer, navigator ,sensorMotor);
-
-		searcher.checkSide();
-		searcher.checkSide();
-		searcher.checkSide();
-		searcher.checkSide();
-	}
 }

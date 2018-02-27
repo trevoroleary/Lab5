@@ -171,17 +171,17 @@ public class USLocalizer {
 	}
 
 	public float deriData() {
-		float f;
+
 		if (isFirst) {
 			isFirst = false;
 			for (int i = 0; i < 10; i++) {
 
 				getFilteredData();
-				
-				if((int) usData[0] > 200){
+
+				if ((int) usData[0] > 200) {
 					usData[0] = 200;
 				}
-				
+
 				deriDataArr[i] = usData[0];
 
 				if (i < 5) {
@@ -193,19 +193,19 @@ public class USLocalizer {
 
 		} else {
 			getFilteredData();
-			
-			if((int) usData[0] > 200){
+
+			if ((int) usData[0] > 200) {
 				usData[0] = 200;
 			}
 
-			bAverage =+(deriDataArr[counter % 10] - deriDataArr[(counter + 5) % 10]) / 5;
+			bAverage = +(deriDataArr[counter % 10] - deriDataArr[(counter + 5) % 10]) / 5;
 
-			fAverage =- deriDataArr[(counter + 5) % 10] / 5;
+			fAverage = -deriDataArr[(counter + 5) % 10] / 5;
 			deriDataArr[counter % 10] = usData[0];
-			fAverage =+ deriDataArr[counter % 10] / 5;
+			fAverage = +deriDataArr[counter % 10] / 5;
 		}
 		counter++;
-		
+
 		return (fAverage - bAverage);
 
 	}

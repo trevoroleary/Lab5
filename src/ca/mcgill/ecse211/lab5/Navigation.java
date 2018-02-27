@@ -24,7 +24,8 @@ public class Navigation extends Thread {
 
 	// angle toward destination
 	private double Theta;
-
+	private int[] LL;
+	private int[] UR;
 	// current position
 	private double currentX;
 	private double currentY;
@@ -41,16 +42,19 @@ public class Navigation extends Thread {
 	 * 
 	 * @param leftMotor
 	 * @param rightMotor
+	 * @param LL
+	 * @param UR
 	 * 
 	 */
-	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, lightLocalizer lightLocalizer) {
-
-
+	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
+			lightLocalizer lightLocalizer, int[] LL, int[] UR) {
 
 		this.odometer = odo;
 		this.rightMotor = rightMotor;
 		this.leftMotor = leftMotor;
 		this.lightLocalizer = lightLocalizer;
+		this.UR = UR;
+		this.LL = LL;
 
 		try {
 			this.odometer = Odometer.getOdometer();
@@ -62,50 +66,50 @@ public class Navigation extends Thread {
 	}
 
 	public void gotoLowerLeft(int[] LL, int[] UR) {
-		int x = (int) ((odometer.getX()/Lab5.TILE_SIZE) + 0.5);
-		int y = (int) ((odometer.getY()/Lab5.TILE_SIZE) + 0.5);
+		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
+		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
 		int dx = x - LL[0];
 		int dy = y - LL[1];
-		
-		if(x < LL[0]) {
-			for(int i = 1; i < dy; i++) {
-				travelTo(x , y - i);
-				if(i % 2 == 0)
+
+		if (x < LL[0]) {
+			for (int i = 1; i < dy; i++) {
+				travelTo(x, y - i);
+				if (i % 2 == 0)
 					turnTo(90, true);
 			}
-			travelTo(x,LL[1]);
-			travelTo(LL[0],LL[1]);
+			travelTo(x, LL[1]);
+			travelTo(LL[0], LL[1]);
 		}
-		
-		else if(y < LL[1]) {
-			for(int i = 1; i < dy; i++) {
-				travelTo(x - i , y);
-				if(i % 2 == 0)
+
+		else if (y < LL[1]) {
+			for (int i = 1; i < dy; i++) {
+				travelTo(x - i, y);
+				if (i % 2 == 0)
 					turnTo(90, true);
 			}
-			travelTo(LL[0],y);
-			travelTo(LL[0],LL[1]);
+			travelTo(LL[0], y);
+			travelTo(LL[0], LL[1]);
 		}
-		
-		else if(UR[0] != x) {
-			for(int i = 1; i < dy; i++) {
-				travelTo(x , y - i);
-				if(i % 2 == 0)
+
+		else if (UR[0] != x) {
+			for (int i = 1; i < dy; i++) {
+				travelTo(x, y - i);
+				if (i % 2 == 0)
 					turnTo(90, true);
 			}
-			travelTo(x,LL[1]);
-			for(int i = 1; i < dx; i++) {
-				travelTo(x - i , LL[1]);
-				if(i % 2 == 0) 
+			travelTo(x, LL[1]);
+			for (int i = 1; i < dx; i++) {
+				travelTo(x - i, LL[1]);
+				if (i % 2 == 0)
 					turnTo(90, true);
 			}
-			travelTo(LL[0],LL[1]);
+			travelTo(LL[0], LL[1]);
 		}
-		
-		turnTo(90,true);
-		turnTo(0,true);
+
+		turnTo(90, true);
+		turnTo(0, true);
 	}
-	
+
 	/**
 	 * This method is used to calculate the distance to map point given
 	 * Cartesian coordinates x and y
@@ -180,17 +184,18 @@ public class Navigation extends Thread {
 		}
 
 		currentTheta = theta;
-		if(localizer)
-			lightLocalizer.correctLocation();		
+		if (localizer)
+			lightLocalizer.correctLocation();
 	}
 
 	public void turn(double theta) {
 		leftMotor.setSpeed(MOTOR_ROTATE);
 		rightMotor.setSpeed(MOTOR_ROTATE);
-		
+
 		leftMotor.rotate(convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, theta), true);
 		rightMotor.rotate(-convertAngle(Lab5.WHEEL_RAD, Lab5.TRACK, theta), false);
 	}
+
 	/**
 	 * This method determines whether another thread has called travelTo and
 	 * turnTo methods or not
@@ -226,50 +231,73 @@ public class Navigation extends Thread {
 	public static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
+
 	public void goToUpperRight(int[] UR) {
-		int x = (int) ((odometer.getX()/Lab5.TILE_SIZE) + 0.5);
-		int y = (int) ((odometer.getY()/Lab5.TILE_SIZE) + 0.5);
+		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
+		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
 		int dx = x - UR[0];
 		int dy = y - UR[1];
-		
-		if(x < UR[0]) {
-			for(int i = 1; i < dy; i++) {
-				travelTo(x , y - i);
-				if(i % 2 == 0)
+
+		if (x < UR[0]) {
+			for (int i = 1; i < dy; i++) {
+				travelTo(x, y - i);
+				if (i % 2 == 0)
 					turnTo(90, true);
 			}
-			travelTo(x,UR[1]);
-			travelTo(UR[0],UR[1]);
+			travelTo(x, UR[1]);
+			travelTo(UR[0], UR[1]);
 		}
-		
-		else if(y < UR[1]) {
-			for(int i = 1; i < dy; i++) {
-				travelTo(x - i , y);
-				if(i % 2 == 0)
+
+		else if (y < UR[1]) {
+			for (int i = 1; i < dy; i++) {
+				travelTo(x - i, y);
+				if (i % 2 == 0)
 					turnTo(90, true);
 			}
-			travelTo(UR[0],y);
-			travelTo(UR[0],UR[1]);
+			travelTo(UR[0], y);
+			travelTo(UR[0], UR[1]);
 		}
-		
-		else if(UR[0] != x) {
-			for(int i = 1; i < dy; i++) {
-				travelTo(x , y - i);
-				if(i % 2 == 0)
+
+		else if (UR[0] != x) {
+			for (int i = 1; i < dy; i++) {
+				travelTo(x, y - i);
+				if (i % 2 == 0)
 					turnTo(90, true);
 			}
-			travelTo(x,UR[1]);
-			for(int i = 1; i < dx; i++) {
-				travelTo(x - i , UR[1]);
-				if(i % 2 == 0) 
+			travelTo(x, UR[1]);
+			for (int i = 1; i < dx; i++) {
+				travelTo(x - i, UR[1]);
+				if (i % 2 == 0)
 					turnTo(90, true);
 			}
-			travelTo(UR[0],UR[1]);
+			travelTo(UR[0], UR[1]);
 		}
-		
-		turnTo(90,true);
-		turnTo(0,true);
+
+		turnTo(90, true);
+		turnTo(0, true);
 	}
 
+	public void travelToNearestEdge() {
+		int xNext = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 1);
+		int xDown = (int) (odometer.getX() / Lab5.TILE_SIZE);
+		int yNext = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 1);
+		int yDown = (int) (odometer.getY() / Lab5.TILE_SIZE);
+
+		double theta = odometer.nearestHeading();
+
+		if (theta == 90) {
+			travelTo(LL[0], yNext);
+			turnTo(0, true);
+		} else if (theta == 180) {
+			travelTo(xNext, UR[1]);
+			turnTo(90, true);
+		} else if (theta == 270) {
+			travelTo(UR[0], yDown);
+			turnTo(180, true);
+		} else if (theta == 0) {
+			travelTo(xDown, LL[1]);
+			turnTo(270, true);
+		}
+	}
 
 }

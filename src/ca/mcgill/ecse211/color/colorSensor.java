@@ -27,31 +27,31 @@ public class colorSensor extends Thread {
 	// White = 4
 
 	
-	private static float redR = 211;
-	private static float redG = 24;
-	private static float redB = 25;
-	private static float blueR = 25;
-	private static float blueG = 74;
-	private static float blueB = 103;
-	private static float yellowR = 324;
-	private static float yellowG = 225;
-	private static float yellowB = 34;
-	private static float whiteR = 343;
-	private static float whiteG = 343;
-	private static float whiteB = 265;
+	private static float redR = 500;
+	private static float redG = 69;
+	private static float redB = 64;
+	private static float blueR = 73;
+	private static float blueG = 191;
+	private static float blueB = 279;
+	private static float yellowR = 936;
+	private static float yellowG = 652;
+	private static float yellowB = 118;
+	private static float whiteR = 957;
+	private static float whiteG = 985;
+	private static float whiteB = 760;
 	
-	private static float redRSD = 5; 
-	private static float redGSD = 5;
+	private static float redRSD = 10; 
+	private static float redGSD = 10;
 	private static float redBSD = 5;
 	private static float blueRSD = 5;
 	private static float blueGSD = 5;
-	private static float blueBSD = 10;
-	private static float yellowRSD = 10;
-	private static float yellowGSD = 10;
-	private static float yellowBSD = 5;
-	private static float whiteRSD = 10;
-	private static float whiteGSD = 10;
-	private static float whiteBSD = 10;
+	private static float blueBSD = 5;
+	private static float yellowRSD = 5;
+	private static float yellowGSD = 15;
+	private static float yellowBSD = 10;
+	private static float whiteRSD = 5;
+	private static float whiteGSD = 5;
+	private static float whiteBSD = 5;
 	
 	private static double sdMultiplier = 8.0; 
 

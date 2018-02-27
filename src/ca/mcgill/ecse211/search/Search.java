@@ -12,11 +12,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Search {
-	
+
 	private EV3LargeRegulatedMotor sensorMotor;
 	private final int[] LL;
 	private final int[] UR;
-	
+
 	private colorSensor sensor;
 	private Odometer odometer;
 	private Navigation navigator;
@@ -39,25 +39,23 @@ public class Search {
 		this.odometer = odometer;
 		this.navigator = navigator;
 		this.USData = USData;
-	
 
-	/**
-	 * This method initiates searching should only be called one the robot is in
-	 * the LL of the search area.
-	 * 
-	 */		
+		/**
+		 * This method initiates searching should only be called one the robot
+		 * is in the LL of the search area.
+		 * 
+		 */
 
-	
-}
-	
-	public void beginSearch(){
-		
-		while(!foundSomething){
-			sensorRight();
-			navigation.goUp();
-		}
 	}
 
+	public void beginSearch() {
+
+		while (!foundSomething) {
+			sensorRight();
+			goUp();
+		}
+		navigator.goToUpperRight(UR);
+	}
 
 	/**
 	 * This method checks in front and 45deg on either side of the robot for
@@ -68,7 +66,7 @@ public class Search {
 	 *         is something on the left, if i1 is 1 there is something in front,
 	 *         if i2 is 1 there is something on the right
 	 */
-	
+
 	public void checkSide() {
 		int[] returnVals = new int[] { 0, 0, 0 };
 
@@ -123,7 +121,7 @@ public class Search {
 					navigator.turnTo(180, false);
 				}
 				nextLine();
-			
+
 			}
 		}
 
@@ -201,7 +199,7 @@ public class Search {
 	}
 
 	public void move(double distance) {
-		// AVOID
+
 
 		Odometer.rightMotor.setSpeed(100);
 		Odometer.leftMotor.setSpeed(100);
@@ -219,45 +217,84 @@ public class Search {
 		Odometer.rightMotor.rotate(-convertDistance(Lab5.WHEEL_RAD, distance), false);
 
 	}
-	
-	public void getBlock(){
+
+	public void getBlock() {
 		navigator.turn(90);
 		sensorForward();
-		
+
 		navigating = true;
-		Odometer.leftMotor.rotate(convertDistance(Lab5.WHEEL_RAD,Lab5.TILE_SIZE),true);
-		Odometer.rightMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE),true);
-		
-		while(navigating){
-			if (USData.getFilteredData() < 15){
+		Odometer.leftMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE), true);
+		Odometer.rightMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE), true);
+
+		while (navigating) {
+			if (USData.getFilteredData() < 15) {
 				Odometer.leftMotor.stop(true);
 				Odometer.rightMotor.stop(true);
 				navigating = false;
 			}
-			if(!Odometer.leftMotor.isMoving() && !Odometer.rightMotor.isMoving()){
+			if (!Odometer.leftMotor.isMoving() && !Odometer.rightMotor.isMoving()) {
 				navigating = false;
 			}
-			if(colorSensor.seeColor()){
+			if (colorSensor.seeColor()) {
 				Odometer.leftMotor.stop(true);
 				Odometer.rightMotor.stop(true);
 				navigating = false;
 				foundSomething = true;
 			}
 		}
-		
+
 		navigator.travelToNearestEdge();
-		
-		
+
 	}
-	
-	public void sensorRight(){
-		isRight = true; 
-		sensorMotor.rotate(90);
-		
-	}
-	public void sensorForward(){
-		isRight = false;
+
+	public void sensorRight() {
+		if ( !isRight){
+		isRight = true;
 		sensorMotor.rotate(-90);
+		}
+
+	}
+
+	public void sensorForward() {
+		if(isRight){
+		isRight = false;
+		sensorMotor.rotate(90);
+		}
+	}
+
+	public void goUp() {
+		sensorRight();
+		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
+		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
+		double theta = odometer.nearestHeading();
+		navigator.travelTo(x, y);
+		navigator.turnTo(theta, true);
+
+		if (y == UR[1] && theta == 0)
+			navigator.turnTo(90, true);
+		else if (x == UR[0] && theta == 90)
+			navigator.turnTo(180, true);
+		else if (y == LL[1] && theta == 180)
+			navigator.turnTo(270, true);
+		else if (x == LL[0] && theta == 270) {
+			navigator.goToUpperRight(UR);
+			foundSomething = true;
+		}
+
+		Odometer.rightMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE), true);
+		Odometer.leftMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE), true);
+		navigating = true;
+
+		while (navigating) {
+			if (USData.deriData() > blockInFront) {
+				Odometer.rightMotor.stop(true);
+				Odometer.leftMotor.stop(true);
+				navigating = false;
+				getBlock();
+			} else if (!Odometer.rightMotor.isMoving() && !Odometer.leftMotor.isMoving()) {
+				navigating = false;
+			}
+		}
 	}
 
 }
