@@ -61,7 +61,13 @@ public class Display implements Runnable {
 			colorResponse=colorSensor.getResponse();
 
 			if (!responsePrev.equals(colorResponse)) {
+				lcd.clear(4);
 				lcd.clear(5);
+			}
+			
+			if (!colorResponse.equals("")){
+				lcd.drawString("Object Detected", 0, 4);
+				lcd.drawString(colorResponse, 0, 5);
 			}
 			
 			// Print x,y, and theta information
@@ -69,8 +75,7 @@ public class Display implements Runnable {
 			lcd.drawString("X: " + numberFormat.format(position[0]/Lab5.TILE_SIZE), 0, 0);
 			lcd.drawString("Y: " + numberFormat.format(position[1]/Lab5.TILE_SIZE), 0, 1);
 			lcd.drawString("T: " + numberFormat.format(position[2]), 0, 2);
-			lcd.drawString("Object Detected", 0, 4);
-			lcd.drawString(colorResponse, 0, 5);
+			
 			
 			responsePrev=colorResponse;
 			// this ensures that the data is updated only once every period

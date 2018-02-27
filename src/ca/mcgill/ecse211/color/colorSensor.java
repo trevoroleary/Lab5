@@ -9,7 +9,7 @@ public class colorSensor extends Thread {
 
 	public float[] RGBData;
 	public int targetColor;
-	public int sensorColor;
+	public static int sensorColor;
 	public static int prevColor;
 	public float red;
 	public float green;
@@ -110,11 +110,20 @@ public class colorSensor extends Thread {
 		return foundColor;
 	}
 	
+	public static boolean seeColor(){
+		if (sensorColor!=0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
 
 	public void run() {
 		long updateStart, updateEnd;
 		while(true) {
-			updateStart=System.currentTimeMillis();
+		updateStart=System.currentTimeMillis();
 		RGBColor.fetchSample(RGBData, 0);
 		red =10000* RGBData[0];
 		green =10000* RGBData[1];

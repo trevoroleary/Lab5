@@ -13,18 +13,20 @@ public class USLocalizer {
 	private double wallDistance = 30;
 	private double wallError = 3;
 	private final double TILE_SIZE = 30.48;
-
+	private float[] deriDataArr = new float[10];
 	// public static final double WHEEL_RAD = 2.12;
 	// public static final double TRACK = 16.05;
-
+	private float bAverage = 0;
+	private float fAverage = 0;
 	private Odometer odometer;
 	private float[] usData;
+	private int counter;
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
 
 	private boolean isRisingEdge;
 	private SampleProvider usDistance;
-	private boolean turn = false;
+	private boolean isFirst = true;
 
 	// Navigation navigation = new Navigation(leftMotor, rightMotor);
 
@@ -45,7 +47,6 @@ public class USLocalizer {
 	}
 
 	public void localize(int startCorner) {
-
 
 		if (getFilteredData() < wallDistance) {
 			localizeRisingEdge(startCorner);
@@ -98,15 +99,14 @@ public class USLocalizer {
 		thetaRotation = 225 - (thetaA + thetaB) / 2.0;
 		navigation.turnTo(thetaRotation, false);
 
-		if(startCorner == 0)
+		if (startCorner == 0)
 			odometer.setXYT(0, 0, 0);
-		if(startCorner == 1)
-			odometer.setXYT(7*TILE_SIZE - 1, 0, 270);
-		if(startCorner == 2)
-			odometer.setXYT(7*TILE_SIZE - 1,7*TILE_SIZE - 1,180);
-		if(startCorner == 3)
-			odometer.setXYT(0, 7*TILE_SIZE - 1, 90);
-		
+		if (startCorner == 1)
+			odometer.setXYT(7 * TILE_SIZE - 1, 0, 270);
+		if (startCorner == 2)
+			odometer.setXYT(7 * TILE_SIZE - 1, 7 * TILE_SIZE - 1, 180);
+		if (startCorner == 3)
+			odometer.setXYT(0, 7 * TILE_SIZE - 1, 90);
 
 	}
 
@@ -147,43 +147,67 @@ public class USLocalizer {
 		rightMotor.stop();
 
 		if (thetaA < thetaB) {
-			thetaRotation = 225 - ((thetaA + thetaB) / 2.0) ;
+			thetaRotation = 225 - ((thetaA + thetaB) / 2.0);
 			navigation.turnTo(thetaRotation, false);
 		} else {
 			thetaRotation = (thetaA + thetaB) / 2.0 + 180;
 			navigation.turnTo(thetaRotation, false);
 		}
 
-		if(startCorner == 0)
+		if (startCorner == 0)
 			odometer.setXYT(0, 0, 0);
-		if(startCorner == 1)
-			odometer.setXYT(7*TILE_SIZE, 0, 270);
-		if(startCorner == 2)
-			odometer.setXYT(7*TILE_SIZE,7*TILE_SIZE,180);
-		if(startCorner == 3)
-			odometer.setXYT(0, 7*TILE_SIZE, 90);
+		if (startCorner == 1)
+			odometer.setXYT(7 * TILE_SIZE, 0, 270);
+		if (startCorner == 2)
+			odometer.setXYT(7 * TILE_SIZE, 7 * TILE_SIZE, 180);
+		if (startCorner == 3)
+			odometer.setXYT(0, 7 * TILE_SIZE, 90);
 
 	}
 
-	private int getFilteredData() {
+	public int getFilteredData() {
 		usDistance.fetchSample(usData, 0);
 		return (int) (usData[0] * 100);
 	}
-	
-	public int getAvgData(int setSize) {
-		int avgData = 0;
-		
-		for(int i = 0; i < setSize; i++) {
-			
-			usDistance.fetchSample(usData, 0);
-			
-				if(((int) (usData[0]*100) ) > 200) {
-					avgData =+ 200/setSize;
+
+	public float deriData() {
+		float f;
+		if (isFirst) {
+			isFirst = false;
+			for (int i = 0; i < 10; i++) {
+
+				getFilteredData();
+				
+				if((int) usData[0] > 200){
+					usData[0] = 200;
 				}
-				else
-					avgData =+ (int) (usData[0]*100)/setSize;
+				
+				deriDataArr[i] = usData[0];
+
+				if (i < 5) {
+					bAverage = +usData[0] / 5;
+				} else {
+					fAverage = +usData[0] / 5;
+				}
+			}
+
+		} else {
+			getFilteredData();
+			
+			if((int) usData[0] > 200){
+				usData[0] = 200;
+			}
+
+			bAverage =+(deriDataArr[counter % 10] - deriDataArr[(counter + 5) % 10]) / 5;
+
+			fAverage =- deriDataArr[(counter + 5) % 10] / 5;
+			deriDataArr[counter % 10] = usData[0];
+			fAverage =+ deriDataArr[counter % 10] / 5;
 		}
-		return avgData;
+		counter++;
+		
+		return (fAverage - bAverage);
+
 	}
-	
+
 }

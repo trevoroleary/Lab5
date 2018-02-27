@@ -30,8 +30,7 @@ public class Lab5 {
 
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	// private static final EV3LargeRegulatedMotor sensorMotor = new
-	// EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+	private static final EV3LargeRegulatedMotor sensorMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 
 	private static SensorModes RSensor = new EV3ColorSensor(LocalEV3.get().getPort("S2"));
 	private static SampleProvider RColor = RSensor.getMode("Red");
@@ -79,8 +78,7 @@ public class Lab5 {
 		Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
 
 		Display odometrydisplay = new Display(lcd); // No need to change
-		// Navigation navigation = new Navigation(odometer, leftMotor,
-		// rightMotor);
+		// Navigation navigation = new Navigation(odometer, leftMotor,rightMotor);
 
 		do {
 			// clear the display
@@ -147,10 +145,10 @@ public class Lab5 {
 
 		lightLocalizer lightLocalizer = new lightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData,
 				LData);
-		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer, );
+		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer);
 		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
-		//Search searcher = new Search(LL, UR, colorSensor, odometer, USLocalizer, navigator);
-	
+		// Search searcher = new Search(LL, UR, colorSensor, odometer,
+		// USLocalizer, navigator);
 
 		// sensorMotor.forward();
 		// sensorMotor.rotate(100);
@@ -162,7 +160,7 @@ public class Lab5 {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		lightLocalizer.correctXY(startCorner);
 		lightLocalizer.setXTOffset(startCorner);
 		try {
@@ -174,11 +172,11 @@ public class Lab5 {
 		Button.waitForAnyPress();
 		navigator.gotoLowerLeft(LL, UR);
 		Button.waitForAnyPress();
-		
+
 		Timer timer = new Timer();
-		
-		TimerTask tt = new TimerTask(){
-			public void run(){
+
+		TimerTask tt = new TimerTask() {
+			public void run() {
 				try {
 					beginSearch();
 				} catch (OdometerExceptions e) {
@@ -187,10 +185,9 @@ public class Lab5 {
 				}
 			}
 		};
-		
-		
-		timer.schedule(tt, 2000, 1000*270);
-		
+
+		timer.schedule(tt, 2000, 1000 * 270);
+
 		navigator.goToUpperRight(UR);
 
 		/*
@@ -206,7 +203,8 @@ public class Lab5 {
 		System.exit(0);
 
 	}
-	public static void beginSearch() throws OdometerExceptions{
+
+	public static void beginSearch() throws OdometerExceptions {
 
 		Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
 		lightLocalizer lightLocalizer = new lightLocalizer(odometer, leftMotor, rightMotor, RColor, LColor, RData,
@@ -214,17 +212,15 @@ public class Lab5 {
 		Thread odoThread = new Thread(odometer);
 		odoThread.start();
 
-
-
 		colorSensor colorSensor = new colorSensor(RGBData, RGBColor, targetColor);
 		colorSensor.start();
-		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer, LL, UR);
+		Navigation navigator = new Navigation(odometer, leftMotor, rightMotor, lightLocalizer);
 		USLocalizer USLocalizer = new USLocalizer(odometer, leftMotor, rightMotor, usDistance, navigator);
-		Search searcher = new Search(LL, UR, colorSensor, odometer, USLocalizer, navigator);
-		
+		Search searcher = new Search(LL, UR, colorSensor, odometer, USLocalizer, navigator ,sensorMotor);
+
 		searcher.checkSide();
 		searcher.checkSide();
 		searcher.checkSide();
 		searcher.checkSide();
-		}
+	}
 }

@@ -6,29 +6,33 @@ import ca.mcgill.ecse211.lab5.Navigation;
 import ca.mcgill.ecse211.lab5.USLocalizer;
 import ca.mcgill.ecse211.odometer.Odometer;
 import lejos.hardware.lcd.LCD;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Search {
-
+	
+	private EV3LargeRegulatedMotor sensorMotor;
 	private final int[] LL;
 	private final int[] UR;
+	
 	private colorSensor sensor;
 	private Odometer odometer;
 	private Navigation navigator;
 	private USLocalizer USData;
 	private boolean upTrue = true;
-	private boolean navigating = true;
-
+	private boolean isRight = false;
 	private int sampleSize = 25;
-	private int avgData;
+	private float avgData;
 
 	private float blockInFront = 10;
+	private boolean navigating = false;
+	private boolean foundSomething = false;
 
 	public Search(int[] LL, int[] UR, colorSensor colorSensor, Odometer odometer, USLocalizer USData,
-			Navigation navigator) {
-
+			Navigation navigator, EV3LargeRegulatedMotor sensorMotor) {
+		this.sensorMotor = sensorMotor;
 		this.LL = LL;
 		this.UR = UR;
 		this.sensor = colorSensor;
@@ -42,9 +46,17 @@ public class Search {
 	 * the LL of the search area.
 	 * 
 	 */		
+
 	
 }
 	
+	public void beginSearch(){
+		
+		while(!foundSomething){
+			sensorRight();
+			navigation.goUp();
+		}
+	}
 
 
 	/**
@@ -60,7 +72,7 @@ public class Search {
 	public void checkSide() {
 		int[] returnVals = new int[] { 0, 0, 0 };
 
-		avgData = USData.getAvgData(sampleSize);
+		avgData = USData.deriData();
 		LCD.drawString("US:" + avgData, 0, 6, false);
 
 		if (avgData < 25) {
@@ -82,7 +94,7 @@ public class Search {
 		}
 
 		navigator.turn(45);
-		avgData = USData.getAvgData(sampleSize);
+		avgData = USData.deriData();
 
 		if (avgData < 25) {
 			returnVals[2] = 1;
@@ -94,7 +106,7 @@ public class Search {
 		else {
 
 			navigator.turn(-90);
-			avgData = USData.getAvgData(sampleSize);
+			avgData = USData.deriData();
 
 			if (avgData < 25) {
 				returnVals[0] = 1;
@@ -168,48 +180,12 @@ public class Search {
 			}
 		}
 	}
-	
+
 	/**
 	 * this method increments the robots x value so that it can start the next
 	 * state of its searching in the search area This method also orients the
 	 * robot to face inwards so an additional line can be searched
 	 */
-	public void goUp() {
-		sensorRight();
-		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
-		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
-		double theta = odometer.nearestHeading();
-		navigator.travelTo(x, y);
-		navigator.turnTo(theta, true);
-		
-		if(y == UR[1] && theta == 0) 
-			navigator.turnTo(90,true);
-		else if(x == UR[0] && theta == 90) 
-			navigator.turnTo(180, true);
-		else if(y == LL[1] && theta == 180)
-			navigator.turnTo(270, true);
-		else if(x == LL[0] && theta == 270)
-			navigator.goToUpperRight(UR);
-		
-		
-		
-		Odometer.rightMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE), true);
-		Odometer.leftMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE),true);
-		navigating = true;
-		
-		while(navigating) {
-			if(deriData() > blockInFront) {
-				Odometer.rightMotor.stop(true);
-				Odometer.leftMotor.stop(true);
-				navigating = false;
-				getBlock();
-			}
-			else if(!Odometer.rightMotor.isMoving() && !Odometer.leftMotor.isMoving()) {
-				navigating = false;
-			}
-		}
-	}
-	
 	public void nextSection() {
 		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
 		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
@@ -242,6 +218,46 @@ public class Search {
 		Odometer.leftMotor.rotate(-convertDistance(Lab5.WHEEL_RAD, distance), true);
 		Odometer.rightMotor.rotate(-convertDistance(Lab5.WHEEL_RAD, distance), false);
 
+	}
+	
+	public void getBlock(){
+		navigator.turn(90);
+		sensorForward();
+		
+		navigating = true;
+		Odometer.leftMotor.rotate(convertDistance(Lab5.WHEEL_RAD,Lab5.TILE_SIZE),true);
+		Odometer.rightMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE),true);
+		
+		while(navigating){
+			if (USData.getFilteredData() < 15){
+				Odometer.leftMotor.stop(true);
+				Odometer.rightMotor.stop(true);
+				navigating = false;
+			}
+			if(!Odometer.leftMotor.isMoving() && !Odometer.rightMotor.isMoving()){
+				navigating = false;
+			}
+			if(colorSensor.seeColor()){
+				Odometer.leftMotor.stop(true);
+				Odometer.rightMotor.stop(true);
+				navigating = false;
+				foundSomething = true;
+			}
+		}
+		
+		navigator.travelToNearestEdge();
+		
+		
+	}
+	
+	public void sensorRight(){
+		isRight = true; 
+		sensorMotor.rotate(90);
+		
+	}
+	public void sensorForward(){
+		isRight = false;
+		sensorMotor.rotate(-90);
 	}
 
 }

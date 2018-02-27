@@ -21,9 +21,6 @@ public class Navigation extends Thread {
 	private Odometer odometer;
 	public static int pointcounter;
 	public lightLocalizer lightLocalizer;
-	
-	private int[] LL;
-	private int[] UR;
 
 	// angle toward destination
 	private double Theta;
@@ -46,7 +43,7 @@ public class Navigation extends Thread {
 	 * @param rightMotor
 	 * 
 	 */
-	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, lightLocalizer lightLocalizer,int[] LL,int[] UR) {
+	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, lightLocalizer lightLocalizer) {
 
 
 
@@ -54,8 +51,6 @@ public class Navigation extends Thread {
 		this.rightMotor = rightMotor;
 		this.leftMotor = leftMotor;
 		this.lightLocalizer = lightLocalizer;
-		this.LL = LL;
-		this.UR = UR;
 
 		try {
 			this.odometer = Odometer.getOdometer();
@@ -276,30 +271,5 @@ public class Navigation extends Thread {
 		turnTo(0,true);
 	}
 
-	public void travelToNearestEdge() {
-		int xNext = (int) ((odometer.getX()/Lab5.TILE_SIZE) + 1);
-		int xDown = (int) (odometer.getX()/Lab5.TILE_SIZE);
-		int yNext = (int) ((odometer.getY()/Lab5.TILE_SIZE) + 1);
-		int yDown = (int) (odometer.getY()/Lab5.TILE_SIZE);
-		
-		double theta = odometer.nearestHeading();
-		
-		if(theta == 90) {
-			travelTo(LL[0], yNext);
-			turnTo(0,true);
-		}
-		else if(theta == 180) {
-			travelTo(xNext, UR[1]);
-			turnTo(90,true);
-		}
-		else if(theta == 270) {
-			travelTo(UR[0], yDown);
-			turnTo(180,true);
-		}
-		else if(theta == 0) {
-			travelTo(xDown, LL[1]);
-			turnTo(270,true);
-		}
-	}
 
 }
