@@ -8,7 +8,7 @@ import lejos.robotics.SampleProvider;
 public class colorSensor extends Thread {
 
 	public float[] RGBData;
-	public int targetColor;
+	public static int targetColor;
 	public static int sensorColor;
 	public static int prevColor;
 	public float red;
@@ -79,9 +79,7 @@ public class colorSensor extends Thread {
 			return 0;
 		}
 	}
-public static boolean isCorrect() {
-	return correctColor;
-}
+
 	public static String colorToString(int color, boolean correctColor) {
 		if (correctColor && prevColor!=color) {
 			Sound.twoBeeps();

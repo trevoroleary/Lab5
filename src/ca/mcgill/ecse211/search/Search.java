@@ -51,7 +51,8 @@ public class Search {
 	public void beginSearch() {
 
 		while (!foundSomething) {
-			if(colorSensor.isCorrect()) {
+			if(colorSensor.targetColor == colorSensor.sensorColor) {
+				//TODO this never becomes true ????? HELP DUDE (even though the robot beeps twice after seeing the right color
 				foundSomething = true;
 			} else {
 			goUp();
