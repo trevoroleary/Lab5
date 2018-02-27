@@ -31,6 +31,7 @@ public class Lab5 {
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final EV3LargeRegulatedMotor sensorMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+	
 
 	private static SensorModes RSensor = new EV3ColorSensor(LocalEV3.get().getPort("S2"));
 	private static SampleProvider RColor = RSensor.getMode("Red");
@@ -73,7 +74,7 @@ public class Lab5 {
 	public static void main(String[] args) throws OdometerExceptions {
 
 		int buttonChoice;
-
+		
 		// Odometer related objects
 		Odometer odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
 

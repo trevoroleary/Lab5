@@ -15,7 +15,7 @@ public class colorSensor extends Thread {
 	public float green;
 	public float blue;
 	public SampleProvider RGBColor;
-	private boolean correctColor = false;
+	public static boolean correctColor = false;
 	public static String foundColor="";
 	public static String colorResponse="";
 
@@ -79,7 +79,9 @@ public class colorSensor extends Thread {
 			return 0;
 		}
 	}
-
+public static boolean isCorrect() {
+	return correctColor;
+}
 	public static String colorToString(int color, boolean correctColor) {
 		if (correctColor && prevColor!=color) {
 			Sound.twoBeeps();

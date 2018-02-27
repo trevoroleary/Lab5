@@ -277,6 +277,37 @@ public class Navigation extends Thread {
 		turnTo(0, true);
 	}
 
+	public void travelToforEdge(double x, double y) {
+		isNavigating = true;
+
+		x = x * Lab5.TILE_SIZE;
+		y = y * Lab5.TILE_SIZE;
+
+		// get current position
+		currentX = odometer.getX();
+		currentY = odometer.getY();
+
+		// compute the difference
+		dX = x - currentX;
+		dY = y - currentY;
+
+		distance = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
+		Theta = Math.toDegrees((Math.atan2(dX, dY))); // convert from radius to
+														// degree
+
+		// rotate toward destination
+
+		turnTo(Theta, false);
+
+		// move straight
+		rightMotor.setSpeed(MOTOR_STRAIGHT);
+		leftMotor.setSpeed(MOTOR_STRAIGHT);
+		leftMotor.rotate(convertDistance(WHEEL_RAD, distance), true);
+		rightMotor.rotate(convertDistance(WHEEL_RAD, distance), false);
+
+		isNavigating = false;
+	}
+	
 	public void travelToNearestEdge() {
 		int xNext = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 1);
 		int xDown = (int) (odometer.getX() / Lab5.TILE_SIZE);
@@ -286,16 +317,16 @@ public class Navigation extends Thread {
 		double theta = odometer.nearestHeading();
 
 		if (theta == 90) {
-			travelTo(LL[0], yNext);
+			travelToforEdge(LL[0], yNext);
 			turnTo(0, true);
 		} else if (theta == 180) {
-			travelTo(xNext, UR[1]);
+			travelToforEdge(xNext, UR[1]);
 			turnTo(90, true);
 		} else if (theta == 270) {
-			travelTo(UR[0], yDown);
+			travelToforEdge(UR[0], yDown);
 			turnTo(180, true);
 		} else if (theta == 0) {
-			travelTo(xDown, LL[1]);
+			travelToforEdge(xDown, LL[1]);
 			turnTo(270, true);
 		}
 	}

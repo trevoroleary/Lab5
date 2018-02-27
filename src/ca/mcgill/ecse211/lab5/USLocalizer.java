@@ -77,7 +77,7 @@ public class USLocalizer {
 		thetaA = odometer.getTheta();
 
 		leftMotor.stop(true);
-		rightMotor.stop();
+		rightMotor.stop(false);
 
 		while (getFilteredData() > wallDistance - wallError) {
 			// rotate clockwise
@@ -94,19 +94,19 @@ public class USLocalizer {
 		thetaB = odometer.getTheta();
 
 		leftMotor.stop(true);
-		rightMotor.stop();
+		rightMotor.stop(false);
 
 		thetaRotation = 225 - (thetaA + thetaB) / 2.0;
 		navigation.turnTo(thetaRotation, false);
 
 		if (startCorner == 0)
-			odometer.setXYT(0, 0, 0);
+			odometer.setXYT(1, 1, 0);
 		if (startCorner == 1)
-			odometer.setXYT(7 * TILE_SIZE - 1, 0, 270);
+			odometer.setXYT(7 * TILE_SIZE, 1, 270);
 		if (startCorner == 2)
-			odometer.setXYT(7 * TILE_SIZE - 1, 7 * TILE_SIZE - 1, 180);
+			odometer.setXYT(7 * TILE_SIZE, 7 * TILE_SIZE, 180);
 		if (startCorner == 3)
-			odometer.setXYT(0, 7 * TILE_SIZE - 1, 90);
+			odometer.setXYT(1, 7 * TILE_SIZE , 90);
 
 	}
 
@@ -129,7 +129,7 @@ public class USLocalizer {
 		thetaA = odometer.getTheta();
 
 		leftMotor.stop(true);
-		rightMotor.stop();
+		rightMotor.stop(false);
 
 		while (getFilteredData() < wallDistance + wallError) {
 			leftMotor.backward();
@@ -144,7 +144,7 @@ public class USLocalizer {
 		thetaB = odometer.getTheta();
 
 		leftMotor.stop(true);
-		rightMotor.stop();
+		rightMotor.stop(false);
 
 		if (thetaA < thetaB) {
 			thetaRotation = 225 - ((thetaA + thetaB) / 2.0);
@@ -169,6 +169,7 @@ public class USLocalizer {
 		usDistance.fetchSample(usData, 0);
 		return (int) (usData[0] * 100);
 	}
+	
 
 	public float deriData() {
 
@@ -176,7 +177,7 @@ public class USLocalizer {
 			isFirst = false;
 			for (int i = 0; i < 10; i++) {
 
-				getFilteredData();
+				usData[0] = getFilteredData();
 
 				if ((int) usData[0] > 200) {
 					usData[0] = 200;
@@ -192,7 +193,7 @@ public class USLocalizer {
 			}
 
 		} else {
-			getFilteredData();
+			usData[0] = getFilteredData();
 
 			if ((int) usData[0] > 200) {
 				usData[0] = 200;
@@ -206,7 +207,7 @@ public class USLocalizer {
 		}
 		counter++;
 
-		return (fAverage - bAverage);
+		return (bAverage - fAverage);
 
 	}
 

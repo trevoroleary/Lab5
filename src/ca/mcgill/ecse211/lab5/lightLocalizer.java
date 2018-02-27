@@ -30,7 +30,7 @@ public class lightLocalizer extends Thread  {
 	public static final double WHEEL_RAD = 2.05;
 	public static final double TRACK = 10.2;	//17.115
 	private final double SENSOR_OFFSET = 5.0;	//distance between center of the track and light sensor
-	private final int GRID_COORDS = Lab5.GRID_SIZE - 2;
+	private final int GRID_COORDS = Lab5.GRID_SIZE - 1;
 
 	//destination position
 	private double x;
@@ -77,24 +77,24 @@ public class lightLocalizer extends Thread  {
 	
 	public void setYOffset(int startCorner) {
 		if(startCorner == 0) 
-			odometer.setY(-SENSOR_OFFSET);
+			odometer.setY((1*Lab5.TILE_SIZE) - SENSOR_OFFSET);
 		else if(startCorner == 1) 
 			odometer.setX((GRID_COORDS*Lab5.TILE_SIZE) + SENSOR_OFFSET);	
 		else if(startCorner == 2) 
 			odometer.setY((GRID_COORDS*Lab5.TILE_SIZE) + SENSOR_OFFSET);
 		else if(startCorner == 3) 
-			odometer.setX(-SENSOR_OFFSET);
+			odometer.setX((1*Lab5.TILE_SIZE) - SENSOR_OFFSET);
 	}
 	
 	public void setXTOffset(int startCorner) {
 		if(startCorner == 0) {
-			odometer.setX(-SENSOR_OFFSET);
-			travelTo(0,0);
+			odometer.setX((1*Lab5.TILE_SIZE) - SENSOR_OFFSET);
+			travelTo(1,1);
 			turnTo(0);
 		}
 		else if(startCorner == 1) {
-			odometer.setY(-SENSOR_OFFSET);
-			travelTo(GRID_COORDS,0);
+			odometer.setY((1*Lab5.TILE_SIZE) - SENSOR_OFFSET);
+			travelTo(GRID_COORDS,1);
 			turnTo(270);
 		}	
 		else if(startCorner == 2) {
@@ -104,7 +104,7 @@ public class lightLocalizer extends Thread  {
 		}
 		else if(startCorner == 3) {
 			odometer.setY((GRID_COORDS*Lab5.TILE_SIZE) + SENSOR_OFFSET);
-			travelTo(0, GRID_COORDS);
+			travelTo(1, GRID_COORDS);
 			turnTo(90);
 		}
 		

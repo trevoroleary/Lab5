@@ -26,7 +26,7 @@ public class Search {
 	private int sampleSize = 25;
 	private float avgData;
 
-	private float blockInFront = 10;
+	private float blockInFront = 50;
 	private boolean navigating = false;
 	private boolean foundSomething = false;
 
@@ -51,8 +51,11 @@ public class Search {
 	public void beginSearch() {
 
 		while (!foundSomething) {
-			sensorRight();
+			if(colorSensor.isCorrect()) {
+				foundSomething = true;
+			} else {
 			goUp();
+			}
 		}
 		navigator.goToUpperRight(UR);
 	}
@@ -227,9 +230,9 @@ public class Search {
 		Odometer.rightMotor.rotate(convertDistance(Lab5.WHEEL_RAD, Lab5.TILE_SIZE), true);
 
 		while (navigating) {
-			if (USData.getFilteredData() < 15) {
+			if (USData.getFilteredData() < 4) {
 				Odometer.leftMotor.stop(true);
-				Odometer.rightMotor.stop(true);
+				Odometer.rightMotor.stop(false);
 				navigating = false;
 			}
 			if (!Odometer.leftMotor.isMoving() && !Odometer.rightMotor.isMoving()) {
@@ -237,18 +240,21 @@ public class Search {
 			}
 			if (colorSensor.seeColor()) {
 				Odometer.leftMotor.stop(true);
-				Odometer.rightMotor.stop(true);
+				Odometer.rightMotor.stop(false);
 				navigating = false;
+				LCD.drawString("Found" + colorSensor.getResponse(), 0, 6, false);
 				foundSomething = true;
+				
 			}
 		}
 
 		navigator.travelToNearestEdge();
+		
 
 	}
 
 	public void sensorRight() {
-		if ( !isRight){
+		if (!isRight){
 		isRight = true;
 		sensorMotor.rotate(-90);
 		}
@@ -264,9 +270,12 @@ public class Search {
 
 	public void goUp() {
 		sensorRight();
+		
 		int x = (int) ((odometer.getX() / Lab5.TILE_SIZE) + 0.5);
 		int y = (int) ((odometer.getY() / Lab5.TILE_SIZE) + 0.5);
+		
 		double theta = odometer.nearestHeading();
+		
 		navigator.travelTo(x, y);
 		navigator.turnTo(theta, true);
 
@@ -286,11 +295,14 @@ public class Search {
 		navigating = true;
 
 		while (navigating) {
-			if (USData.deriData() > blockInFront) {
+			LCD.drawString("US:" + avgData, 0, 6, false);
+			//if (USData.deriData() > blockInFront) {
+			if(USData.getFilteredData() < 30) {
 				Odometer.rightMotor.stop(true);
 				Odometer.leftMotor.stop(true);
 				navigating = false;
 				getBlock();
+				
 			} else if (!Odometer.rightMotor.isMoving() && !Odometer.leftMotor.isMoving()) {
 				navigating = false;
 			}
